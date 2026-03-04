@@ -17,6 +17,9 @@ Route::view('profile', 'profile')
 
 Route::middleware(['auth'])->group(function () {
     Route::resource('productos', ProductoController::class);
+    Route::post('/productos/bulk-update-prices', [ProductoController::class, 'bulkUpdatePrices'])->name('productos.bulk-update-prices');
+    Route::patch('/productos/{producto}/restaurar', [ProductoController::class, 'restaurar'])
+    ->name('productos.restaurar');
 });
 
 

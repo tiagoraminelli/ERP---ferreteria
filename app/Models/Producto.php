@@ -47,5 +47,10 @@ class Producto extends Model
         return $this->belongsTo(Proveedor::class);
     }
 
+    public function unidad_medida()
+    {
+        return $this->belongsTo(UnidadMedida::class);
+    }
+
 
 }
