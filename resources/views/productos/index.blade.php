@@ -3,14 +3,14 @@
         <div class="flex justify-between items-center">
             <div>
                 <h2 class="text-2xl font-bold text-white dark:text-gray-900">Inventario</h2>
-                <p class="text-sm text-white-500 dark:text-gray-400">Panel General de Productos</p>
+                <p class="text-sm text-black-500 dark:text-gray-400">Panel General de Productos</p>
             </div>
 
             <div class="flex items-center gap-3">
                 {{-- SELECTOR DE VISTA --}}
                 <div class="flex bg-white/10 dark:bg-gray-200 p-1 rounded-xl">
                     <button onclick="cambiarVista('tabla')" id="btnVistaTabla"
-                        class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ !request('vista') || request('vista') == 'tabla' ? 'bg-white text-black shadow-sm' : 'text-white/70 hover:text-white' }}">
+                        class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ !request('vista') || request('vista') == 'tabla' ? 'bg-white text-black shadow-sm' : 'text-black/70 hover:text-black' }}">
                         <span class="flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -21,7 +21,7 @@
                         </span>
                     </button>
                     <button onclick="cambiarVista('grid')" id="btnVistaGrid"
-                        class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ request('vista') == 'grid' ? 'bg-white text-black shadow-sm' : 'text-white/70 hover:text-white' }}">
+                        class="px-4 py-2 rounded-lg text-xs font-bold uppercase tracking-wider transition-all {{ request('vista') == 'grid' ? 'bg-white text-black shadow-sm' : 'text-black/70 hover:text-black' }}">
                         <span class="flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -35,40 +35,45 @@
 
                 {{-- BOTÓN NUEVO PRODUCTO --}}
                 <a href="{{ route('productos.create') }}"
-                    class="px-5 py-2.5 bg-black text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition shadow">
+                    class="px-5 py-2.5 bg-black text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition shadow whitespace-nowrap">
                     + Nuevo Producto
                 </a>
             </div>
         </div>
     </x-slot>
 
+    {{-- ================= MODAL DE CONFIRMACIÓN ================= --}}
+    <x-confirm-modal />
+
     <div class="py-8 bg-gray-50 min-h-screen">
-        <div class="max-w-7xl mx-auto px-6 space-y-6">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
 
             {{-- ================= BARRA DE ACCIONES MASIVAS ================= --}}
             <div id="bulkActionsBar"
                 class="bg-white rounded-2xl shadow-sm border border-gray-100 p-4 hidden items-center justify-between transition-all">
                 <div class="flex items-center gap-4">
-                    <span class="text-sm font-medium text-gray-700">
+                    <span class="text-sm font-medium text-gray-700 whitespace-nowrap">
                         <span id="selectedCount">0</span> productos seleccionados
                     </span>
-                    <button onclick="selectAll()" class="text-xs text-gray-500 hover:text-gray-700 underline">
+                    <button onclick="selectAll()"
+                        class="text-xs text-gray-500 hover:text-gray-700 underline whitespace-nowrap">
                         Seleccionar todos
                     </button>
-                    <button onclick="deselectAll()" class="text-xs text-gray-500 hover:text-gray-700 underline">
+                    <button onclick="deselectAll()"
+                        class="text-xs text-gray-500 hover:text-gray-700 underline whitespace-nowrap">
                         Limpiar selección
                     </button>
                 </div>
                 <div class="flex items-center gap-2">
                     <button onclick="openBulkPriceModal()"
-                        class="px-4 py-2 bg-black text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition">
+                        class="px-4 py-2 bg-black text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition whitespace-nowrap">
                         Actualizar Precios
                     </button>
                 </div>
             </div>
 
             {{-- ================= FILTROS INTELIGENTES ================= --}}
-            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5">
+            <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-5" style="margin-top: 0px">
                 <form method="GET" action="{{ route('productos.index') }}" class="flex flex-wrap items-center gap-4">
                     <input type="hidden" name="vista" id="vistaInput" value="{{ request('vista', 'tabla') }}">
 
@@ -105,13 +110,13 @@
                     </select>
 
                     <button type="submit"
-                        class="px-4 py-2 text-sm bg-black text-black rounded-xl hover:bg-gray-800 transition">
+                        class="px-4 py-2 text-sm bg-black text-black rounded-xl hover:bg-gray-800 transition whitespace-nowrap">
                         Filtrar
                     </button>
 
                     @if (request()->anyFilled(['buscar', 'categoria', 'marca', 'proveedor', 'stock', 'eliminados']))
                         <a href="{{ route('productos.index', ['vista' => request('vista', 'tabla')]) }}"
-                            class="text-sm text-red-500 hover:underline">
+                            class="text-sm text-red-500 hover:underline whitespace-nowrap ">
                             Limpiar
                         </a>
                     @endif
@@ -176,12 +181,11 @@
                                             </span>
                                         </td>
                                         <td class="px-6 py-4 text-right">
-                                            <span
-                                                class="font-medium text-gray-600 hover:text-black underline">
+                                            <span class="font-medium text-gray-600 hover:text-black underline">
                                                 ${{ number_format($costo, 2, ',', '.') }}
                                             </span>
                                         </td>
-                                        <td class="px-6 py-4 text-right font-semibold text-gray-900">
+                                        <td class="px-6 py-4 text-right font-semibold text-green-600">
                                             ${{ number_format($venta, 2, ',', '.') }}
                                         </td>
                                         <td class="px-6 py-4 text-right">
@@ -197,36 +201,68 @@
                                         <td class="px-6 py-4">
                                             <div class="flex items-center justify-center gap-2 text-black">
                                                 @if (request('eliminados'))
-                                                    <form action="{{ route('productos.restaurar', $producto) }}"
-                                                        method="POST">
+                                                    <form action="{{ route('productos.restaurar', $producto->id) }}"
+                                                        method="POST"
+                                                        onsubmit="event.preventDefault(); openConfirmModal({
+                                                            form: this,
+                                                            title: 'Restaurar producto',
+                                                            message: 'El producto volverá a estar activo en el sistema.',
+                                                            buttonText: 'Restaurar',
+                                                            buttonClass: 'bg-green-600 hover:bg-green-700 text-black',
+                                                            icon: `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'/>
+                                                            </svg>`
+                                                        })"
+                                                        class="inline">
                                                         @csrf
                                                         @method('PATCH')
+
                                                         <button type="submit"
-                                                            class="inline-flex items-center px-3 py-1.5 bg-green-600 hover:bg-green-700 text-black text-xs font-medium rounded-lg transition">
-                                                            <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
+                                                            class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                                                            title="Restaurar">
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2" d="M5 13l4 4L19 7" />
                                                             </svg>
-                                                            Restaurar
                                                         </button>
                                                     </form>
                                                 @else
                                                     <a href="{{ route('productos.edit', $producto) }}"
                                                         class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
                                                         title="Editar">
-                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                        <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                            viewBox="0 0 24 24">
+                                                            <path stroke-linecap="round" stroke-linejoin="round"
+                                                                stroke-width="2"
                                                                 d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
                                                             </path>
                                                         </svg>
                                                     </a>
-                                                    <form action="{{ route('productos.destroy', $producto) }}" method="POST"
-                                                        onsubmit="return confirm('¿Enviar a la papelera?')" class="inline">
-                                                        @csrf @method('DELETE')
+                                                    <form action="{{ route('productos.destroy', $producto) }}"
+                                                        method="POST"
+                                                        onsubmit="event.preventDefault(); openConfirmModal({
+                                                            form: this,
+                                                            title: 'Enviar a la papelera',
+                                                            message: 'El producto será desactivado y podrá restaurarse luego.',
+                                                            buttonText: 'Eliminar',
+                                                            buttonClass: 'bg-red-600 hover:bg-red-700 text-black',
+                                                            icon: `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2'
+                                                                d='M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16'/>
+                                                            </svg>`
+                                                        })"
+                                                        class="inline">
+                                                        @csrf
+                                                        @method('DELETE')
+
                                                         <button type="submit"
                                                             class="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
                                                             title="Eliminar">
-                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                                viewBox="0 0 24 24">
+                                                                <path stroke-linecap="round" stroke-linejoin="round"
+                                                                    stroke-width="2"
                                                                     d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
                                                                 </path>
                                                             </svg>
@@ -256,7 +292,8 @@
 
             {{-- ================= VISTA GRID ================= --}}
             <div id="vistaGrid" class="{{ request('vista') == 'grid' ? 'block' : 'hidden' }}">
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4 gap-5">
+
                     @forelse($productos as $producto)
                         @php
                             $costo = $producto->precio_costo ?? 0;
@@ -264,128 +301,179 @@
                             $ganancia = $venta - $costo;
                             $margen = $costo > 0 ? ($ganancia / $costo) * 100 : 0;
                         @endphp
+
                         <div
-                            class="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all overflow-hidden group relative">
-                            {{-- Checkbox para selección masiva --}}
-                            <div class="absolute top-2 left-2 z-10">
+                            class="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 group relative overflow-hidden">
+
+                            {{-- Checkbox --}}
+                            <div class="absolute right-0 top-0 p-2" style="z-index: 10">
                                 <input type="checkbox"
                                     class="product-checkbox rounded border-gray-300 text-black focus:ring-black"
                                     value="{{ $producto->id }}" data-precio="{{ $venta }}"
                                     onclick="updateSelectedCount()">
                             </div>
 
-                            <div class="h-32 bg-gradient-to-br from-gray-50 to-gray-100 relative">
+                            {{-- Imagen --}}
+                            <div
+                                class="h-40 bg-gradient-to-br from-gray-50 to-gray-100 relative flex items-center justify-center">
+
                                 @if ($producto->imagen)
-                                    <img src="{{ $producto->imagen }}" class="w-full h-full object-cover">
+                                    <img src="{{ $producto->imagen }}"
+                                        class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
                                 @else
-                                    <div class="w-full h-full flex items-center justify-center">
-                                        <svg class="w-12 h-12 text-gray-300" fill="none" stroke="currentColor"
+                                    <div class="text-gray-300">
+                                        <svg class="w-12 h-12" fill="none" stroke="currentColor"
                                             viewBox="0 0 24 24">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
-                                                d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z">
+                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2h-6l-2-2H5a2 2 0 00-2 2z">
                                             </path>
                                         </svg>
                                     </div>
                                 @endif
-                                <div class="absolute top-2 right-2">
+
+                                {{-- Badge stock --}}
+                                <div class="absolute top-3 right-3">
                                     <span
-                                        class="px-2 py-1 text-[10px] font-bold rounded-full
-                                        {{ $producto->stock <= $producto->stock_minimo ? 'bg-red-500 text-white' : 'bg-green-500 text-white' }}">
+                                        class="px-2.5 py-1 text-[10px] font-bold rounded-full
+                            {{ $producto->stock <= $producto->stock_minimo ? 'bg-red-500 text-black' : 'bg-emerald-500 text-black' }}">
                                         {{ number_format($producto->stock, 0) }} uds
                                     </span>
                                 </div>
                             </div>
-                            <div class="p-4">
-                                <h3 class="font-bold text-gray-900 mb-1 truncate">{{ $producto->nombre }}</h3>
-                                <div class="text-[10px] text-gray-400 mb-3 space-y-0.5">
-                                    <div class="truncate">{{ $producto->codigo_barra ?? 'Sin código' }}</div>
-                                    <div>{{ $producto->marca->nombre ?? 'Sin marca' }} •
-                                        {{ $producto->categoria->nombre ?? 'Sin categoría' }}</div>
+
+                            {{-- Contenido --}}
+                            <div class="p-4 space-y-3">
+
+                                {{-- Nombre --}}
+                                <div>
+                                    <h3 class="font-semibold text-gray-900 text-sm truncate">
+                                        {{ $producto->nombre }}
+                                    </h3>
+                                    <p class="text-[11px] text-gray-400 truncate">
+                                        {{ $producto->marca->nombre ?? 'Sin marca' }} •
+                                        {{ $producto->categoria->nombre ?? 'Sin categoría' }}
+                                    </p>
                                 </div>
-                                <div class="flex items-center justify-between mb-3">
-                                    <div>
-                                        <p class="text-[8px] text-gray-400 uppercase">Costo</p>
-                                        <button
-                                            onclick="openModal({{ $producto->id }}, {{ $costo }}, '{{ $producto->nombre }}')"
-                                            class="text-xs font-medium text-gray-600 hover:text-black underline">
+
+                                {{-- Precios --}}
+                                <div class="grid grid-cols-2 gap-4 text-sm">
+
+                                    {{-- COSTO (abre modal) --}}
+                                    <div class="bg-gray-50 rounded-xl p-3 hover:bg-gray-100 transition cursor-pointer"
+                                        onclick="openModal({{ $producto->id }}, {{ $costo }}, '{{ addslashes($producto->nombre) }}')">
+
+                                        <p class="text-[9px] text-gray-400 uppercase tracking-wide">
+                                            Costo
+                                        </p>
+
+                                        <p class="font-medium text-gray-700">
                                             ${{ number_format($costo, 2, ',', '.') }}
-                                        </button>
+                                        </p>
                                     </div>
-                                    <div class="text-right">
-                                        <p class="text-[8px] text-gray-400 uppercase">Venta</p>
-                                        <p class="text-sm font-bold text-gray-900">
-                                            ${{ number_format($venta, 2, ',', '.') }}</p>
+
+                                    {{-- VENTA --}}
+                                    <div class="bg-black text-black rounded-xl p-3 text-right">
+                                        <p class="text-[9px] uppercase opacity-70 tracking-wide">
+                                            Venta
+                                        </p>
+                                        <p class="font-semibold">
+                                            ${{ number_format($venta, 2, ',', '.') }}
+                                        </p>
                                     </div>
                                 </div>
+
+                                {{-- Margen + Ganancia --}}
                                 <div class="flex items-center justify-between pt-3 border-t border-gray-100">
-                                    <div>
-                                        <span
-                                            class="px-2 py-1 text-[9px] font-bold rounded-full
-                                            {{ $margen >= 30 ? 'bg-green-100 text-green-700' : ($margen < 15 ? 'bg-red-100 text-red-600' : 'bg-yellow-100 text-yellow-700') }}">
-                                            {{ number_format($margen, 1) }}% margen
-                                        </span>
-                                    </div>
+
+                                    <span
+                                        class="px-2.5 py-1 text-[10px] font-bold rounded-full
+                            {{ $margen >= 30
+                                ? 'bg-emerald-100 text-emerald-700'
+                                : ($margen < 15
+                                    ? 'bg-red-100 text-red-600'
+                                    : 'bg-amber-100 text-amber-700') }}">
+
+                                        {{ number_format($margen, 1) }}% margen
+                                    </span>
+
                                     <div class="text-right">
-                                        <p class="text-[8px] text-gray-400 uppercase">Ganancia</p>
+                                        <p class="text-[9px] text-gray-400 uppercase">
+                                            Ganancia
+                                        </p>
                                         <p
-                                            class="text-xs font-medium {{ $ganancia > 0 ? 'text-green-600' : 'text-red-500' }}">
+                                            class="text-sm font-semibold
+                                {{ $ganancia > 0 ? 'text-emerald-600' : 'text-red-500' }}">
                                             ${{ number_format($ganancia, 2, ',', '.') }}
                                         </p>
                                     </div>
                                 </div>
 
-                                {{-- ACCIONES EN GRID --}}
-                                <div class="mt-4 pt-3 border-t border-gray-100">
+                                {{-- Acciones --}}
+                                <div class="pt-3 border-t border-gray-100">
+
                                     @if (request('eliminados'))
-                                        <form action="{{ route('productos.restaurar', $producto) }}" method="POST">
+                                        <form action="{{ route('productos.restaurar', $producto->id) }}"
+                                            method="POST"
+                                            onsubmit="event.preventDefault(); openConfirmModal({
+                                                            form: this,
+                                                            title: 'Restaurar producto',
+                                                            message: 'El producto volverá a estar activo en el sistema.',
+                                                            buttonText: 'Restaurar',
+                                                            buttonClass: 'bg-green-600 hover:bg-green-700 text-black',
+                                                            icon: `<svg class='w-5 h-5' fill='none' stroke='currentColor' viewBox='0 0 24 24'>
+                                                                <path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M5 13l4 4L19 7'/>
+                                                            </svg>`
+                                                        })"
+                                            class="inline">
                                             @csrf
                                             @method('PATCH')
+
                                             <button type="submit"
-                                                class="w-full inline-flex items-center justify-center px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs font-medium rounded-lg transition">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path>
-                                                </svg>
-                                                Restaurar Producto
+                                                class="p-2 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition"
+                                                title="Restaurar">
+                                               Restaurar
                                             </button>
                                         </form>
                                     @else
-                                        <div class="flex items-center justify-between">
+                                        <div class="flex rounded-xl overflow-hidden border border-gray-200">
+
                                             <a href="{{ route('productos.edit', $producto) }}"
-                                                class="flex-1 inline-flex items-center justify-center px-3 py-2 bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-medium rounded-l-lg transition">
-                                                <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                        d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
-                                                    </path>
-                                                </svg>
+                                                class="flex-1 text-center py-2 text-xs font-medium
+                                           bg-gray-100 hover:bg-gray-200 text-gray-700 transition">
                                                 Editar
                                             </a>
+
                                             <form action="{{ route('productos.destroy', $producto) }}" method="POST"
                                                 onsubmit="return confirm('¿Enviar a la papelera?')" class="flex-1">
-                                                @csrf @method('DELETE')
+                                                @csrf
+                                                @method('DELETE')
+
                                                 <button type="submit"
-                                                    class="w-full inline-flex items-center justify-center px-3 py-2 bg-red-50 hover:bg-red-100 text-red-600 text-xs font-medium rounded-r-lg border-l border-red-200 transition">
-                                                    <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                            d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16">
-                                                        </path>
-                                                    </svg>
+                                                    class="w-full py-2 text-xs font-medium
+                                               bg-red-50 hover:bg-red-100
+                                               text-red-600 transition border-l border-gray-200">
                                                     Eliminar
                                                 </button>
                                             </form>
+
                                         </div>
                                     @endif
                                 </div>
+
                             </div>
                         </div>
+
                     @empty
-                        <div
-                            class="col-span-full bg-white rounded-2xl shadow-sm border border-gray-100 p-20 text-center">
+
+                        <div class="col-span-full bg-white rounded-2xl border border-gray-100 p-20 text-center">
                             <p class="text-gray-400">No se encontraron productos.</p>
                         </div>
                     @endforelse
+
                 </div>
+
                 @if ($productos->hasPages())
-                    <div class="mt-6 px-6 py-4 bg-white rounded-2xl shadow-sm border border-gray-100">
+                    <div class="mt-6 p-6 bg-white rounded-2xl border border-gray-100 shadow-sm">
                         {{ $productos->appends(['vista' => 'grid'])->links() }}
                     </div>
                 @endif
@@ -394,13 +482,10 @@
         </div>
     </div>
 
-
     {{-- ================= MODAL ACTUALIZACIÓN MASIVA DE PRECIOS ================= --}}
     <div id="modalPrecioMasivo"
         class="fixed inset-0 bg-black/40 backdrop-blur-sm hidden items-center justify-center z-50">
-
         <div class="bg-white w-[420px] max-w-[90%] rounded-2xl p-6 shadow-2xl">
-
             <h3 class="text-lg font-bold mb-4">Actualización Masiva de Precios</h3>
 
             <div class="mb-4 p-3 bg-gray-50 rounded-lg">
