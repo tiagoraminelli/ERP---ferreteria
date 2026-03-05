@@ -2,13 +2,13 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h1 class="text-2xl font-bold text-white">Editar Producto</h1>
+                <h1 class="text-2xl font-bold text-white">Editar Pedido</h1>
                 <p class="text-sm text-white-500 dark:text-gray-400">
-                    Modificación del artículo en el sistema
+                    Modificación de pedido existente
                 </p>
             </div>
 
-            <a href="{{ route('productos.index') }}"
+            <a href="{{ route('pedidos.index') }}"
                 class="px-4 py-2 bg-white/10 text-white text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-white/20 transition">
                 ← Volver
             </a>
@@ -19,14 +19,15 @@
         <div class="flex justify-center">
             <div class="w-full max-w-7xl px-6 mt-2">
 
-                <form action="{{ route('productos.update', $producto) }}" method="POST">
+                <form action="{{ route('pedidos.update', $pedido) }}" method="POST">
                     @csrf
                     @method('PUT')
 
+                    {{-- RESUMEN DE ERRORES --}}
                     @if ($errors->any())
                         <div class="bg-red-50 border border-red-200 text-red-700 rounded-xl p-4 mb-6">
                             <p class="text-sm font-semibold mb-2">
-                                Se encontraron errores en el formulario:
+                                Se encontraron errores:
                             </p>
                             <ul class="text-sm list-disc list-inside space-y-1">
                                 @foreach ($errors->all() as $error)
@@ -38,18 +39,24 @@
 
                     <div class="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
 
+                        {{-- TÍTULO --}}
                         <div class="mb-6 pb-4 border-b border-gray-100">
-                            <h2 class="text-sm font-semibold text-gray-700">Información del Producto</h2>
-                            <p class="text-xs text-gray-400">Actualice los campos necesarios</p>
+                            <h2 class="text-sm font-semibold text-gray-700">
+                                Información del Pedido
+                            </h2>
+                            <p class="text-xs text-gray-400">
+                                Modifique los datos del pedido
+                            </p>
                         </div>
 
+                        {{-- GRID --}}
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
 
                             {{-- COLUMNA IZQUIERDA --}}
                             <div class="space-y-5">
                                 <div class="border-b border-gray-100 pb-2 mb-2">
                                     <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                        Información Básica
+                                        Datos Principales
                                     </span>
                                 </div>
 
@@ -59,9 +66,12 @@
                                         Nombre <span class="text-red-500">*</span>
                                     </label>
                                     <input type="text" name="nombre"
-                                        value="{{ old('nombre', $producto->nombre) }}"
+                                        value="{{ old('nombre', $pedido->nombre) }}"
                                         class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black"
                                         required>
+                                    @error('nombre')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 {{-- Descripción --}}
@@ -70,7 +80,10 @@
                                         Descripción
                                     </label>
                                     <textarea name="descripcion" rows="3"
-                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">{{ old('descripcion', $producto->descripcion) }}</textarea>
+                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">{{ old('descripcion', $pedido->descripcion) }}</textarea>
+                                    @error('descripcion')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
                                 {{-- Categoría --}}
@@ -83,28 +96,27 @@
                                         <option value="">Seleccionar categoría</option>
                                         @foreach ($categorias as $categoria)
                                             <option value="{{ $categoria->id }}"
-                                                {{ old('categoria_id', $producto->categoria_id) == $categoria->id ? 'selected' : '' }}>
+                                                {{ old('categoria_id', $pedido->categoria_id) == $categoria->id ? 'selected' : '' }}>
                                                 {{ $categoria->nombre }}
                                             </option>
                                         @endforeach
                                     </select>
+                                    @error('categoria_id')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                {{-- Unidad --}}
+                                {{-- Proveedor --}}
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Unidad de Medida <span class="text-red-500">*</span>
+                                        Proveedor
                                     </label>
-                                    <select name="unidad_medida_id"
+                                    <input type="text" name="proveedor"
+                                        value="{{ old('proveedor', $pedido->proveedor) }}"
                                         class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">
-                                        <option value="">Seleccionar unidad</option>
-                                        @foreach ($unidades as $unidad)
-                                            <option value="{{ $unidad->id }}"
-                                                {{ old('unidad_medida_id', $producto->unidad_medida_id) == $unidad->id ? 'selected' : '' }}>
-                                                {{ $unidad->nombre }} ({{ $unidad->abreviatura }})
-                                            </option>
-                                        @endforeach
-                                    </select>
+                                    @error('proveedor')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
                             </div>
 
@@ -112,84 +124,67 @@
                             <div class="space-y-5">
                                 <div class="border-b border-gray-100 pb-2 mb-2">
                                     <span class="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                                        Precios y Stock
+                                        Cantidad y Estado
                                     </span>
                                 </div>
 
-                                {{-- Modelo --}}
+                                {{-- Cantidad --}}
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Modelo
+                                        Cantidad <span class="text-red-500">*</span>
                                     </label>
-                                    <input type="text" name="modelo"
-                                        value="{{ old('modelo', $producto->modelo) }}"
-                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">
-                                </div>
-
-                                {{-- Precio Costo --}}
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Precio Costo
-                                    </label>
-                                    <input type="number" step="0.01" name="precio_costo"
-                                        value="{{ old('precio_costo', $producto->precio_costo) }}"
-                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">
-                                </div>
-
-                                {{-- Margen --}}
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Margen %
-                                    </label>
-                                    <input type="number" step="0.01" name="margen_ganancia"
-                                        value="{{ old('margen_ganancia', $producto->margen_ganancia) }}"
-                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">
-                                </div>
-
-                                {{-- Precio Venta --}}
-                                <div>
-                                    <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Precio Venta <span class="text-red-500">*</span>
-                                    </label>
-                                    <input type="number" step="0.01" name="precio"
-                                        value="{{ old('precio', $producto->precio) }}"
+                                    <input type="number" name="cantidad"
+                                        value="{{ old('cantidad', $pedido->cantidad) }}"
+                                        min="1"
                                         class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black"
                                         required>
+                                    @error('cantidad')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
 
-                                {{-- Stock --}}
+                                {{-- Estado --}}
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Stock <span class="text-red-500">*</span>
+                                        Estado
                                     </label>
-                                    <input type="number" step="0.001" name="stock"
-                                        value="{{ old('stock', $producto->stock) }}"
-                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black"
-                                        required>
+                                    <select name="estado"
+                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">
+                                        <option value="pendiente" {{ old('estado', $pedido->estado) == 'pendiente' ? 'selected' : '' }}>
+                                            Pendiente
+                                        </option>
+                                        <option value="comprado" {{ old('estado', $pedido->estado) == 'comprado' ? 'selected' : '' }}>
+                                            Comprado
+                                        </option>
+                                        <option value="cancelado" {{ old('estado', $pedido->estado) == 'cancelado' ? 'selected' : '' }}>
+                                            Cancelado
+                                        </option>
+                                    </select>
                                 </div>
 
-                                {{-- Stock Mínimo --}}
+                                {{-- Observaciones --}}
                                 <div>
                                     <label class="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">
-                                        Stock Mínimo <span class="text-red-500">*</span>
+                                        Observaciones
                                     </label>
-                                    <input type="number" step="0.001" name="stock_minimo"
-                                        value="{{ old('stock_minimo', $producto->stock_minimo) }}"
-                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black"
-                                        required>
+                                    <textarea name="observaciones" rows="3"
+                                        class="w-full rounded-xl border-gray-200 text-sm focus:ring-black focus:border-black">{{ old('observaciones', $pedido->observaciones) }}</textarea>
+                                    @error('observaciones')
+                                        <p class="text-xs text-red-500 mt-1">{{ $message }}</p>
+                                    @enderror
                                 </div>
-                            </div>
-                        </div>
 
-                        {{-- Activo --}}
-                        <div class="mt-6 pt-4 border-t border-gray-100">
-                            <div class="flex items-center gap-3">
-                                <input type="checkbox" name="activo" value="1"
-                                    {{ old('activo', $producto->activo) ? 'checked' : '' }}
-                                    class="rounded border-gray-300 text-black focus:ring-black">
-                                <span class="text-sm text-gray-600">
-                                    Producto activo (visible en ventas)
-                                </span>
+                                {{-- Visible --}}
+                                <div class="mt-2">
+                                    <label class="flex items-center gap-3">
+                                        <input type="checkbox" name="visible" value="1"
+                                            {{ old('visible', $pedido->visible) ? 'checked' : '' }}
+                                            class="rounded border-gray-300 text-black focus:ring-black">
+                                        <span class="text-sm text-gray-600">
+                                            Pedido visible
+                                        </span>
+                                    </label>
+                                </div>
                             </div>
                         </div>
 
@@ -197,7 +192,7 @@
                         <div class="mt-6">
                             <button type="submit"
                                 class="w-full py-3 bg-black text-black text-xs font-bold uppercase tracking-widest rounded-xl hover:bg-gray-800 transition shadow-sm">
-                                Actualizar Producto
+                                Guardar Cambios
                             </button>
                         </div>
 
@@ -206,7 +201,4 @@
             </div>
         </div>
     </div>
-
-    <script src="{{ asset('js/create.productos.js') }}"></script>
-
 </x-app-layout>

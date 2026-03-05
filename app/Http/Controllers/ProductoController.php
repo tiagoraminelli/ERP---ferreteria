@@ -203,30 +203,82 @@ class ProductoController extends Controller
             ->with('success', 'Producto creado correctamente.');
     }
 
+    public function edit(Producto $producto)
+    {
+        $categorias = Categoria::all();
+        $unidades = UnidadMedida::all();
+
+        return view('productos.edit', compact('producto', 'categorias', 'unidades'));
+    }
+
     public function update(Request $request, Producto $producto)
     {
-        $request->validate([
-            'nombre' => 'required|max:200',
-            'precio' => 'required|numeric|min:0',
-            'stock' => 'required|numeric|min:0',
-            'stock_minimo' => 'required|numeric|min:0',
-            'categoria_id' => 'nullable|exists:categorias,id',
-            'marca_id' => 'nullable|exists:marcas,id',
-            'proveedor_id' => 'nullable|exists:proveedores,id',
-            'codigo_barra' => 'nullable|unique:productos,codigo_barra,' . $producto->id,
-        ]);
+        $validated = $request->validate(
+            [
+                'nombre' => 'required|string|max:200|min:3',
+                'descripcion' => 'nullable|string|max:1000',
+                'modelo' => 'nullable|string|max:150|min:3',
 
-        $producto->update($request->all());
+                'precio_costo' => 'nullable|numeric|min:0',
+                'precio' => 'required|numeric|min:0|gte:precio_costo',
+                'margen_ganancia' => 'nullable|numeric|min:0',
 
+                'stock' => 'required|numeric|min:0',
+                'stock_minimo' => 'required|numeric|min:0',
+
+                'categoria_id' => 'nullable|exists:categorias,id',
+                'unidad_medida_id' => 'nullable|exists:unidades_medida,id',
+                'marca_id' => 'nullable|exists:marcas,id',
+                'proveedor_id' => 'nullable|exists:proveedores,id',
+
+                'codigo_barra' => 'nullable|unique:productos,codigo_barra,' . $producto->id,
+            ],
+            [
+                'nombre.required' => 'El nombre del producto es obligatorio.',
+                'nombre.max' => 'El nombre no puede superar los 200 caracteres.',
+                'nombre.min' => 'El nombre debe tener al menos 3 caracteres.',
+
+                'precio.required' => 'El precio de venta es obligatorio.',
+                'precio.numeric' => 'El precio debe ser un número válido.',
+                'precio.min' => 'El precio no puede ser negativo.',
+                'precio.gte' => 'El precio de venta no puede ser menor al precio de proveedor.',
+
+                'precio_costo.numeric' => 'El precio de proveedor debe ser un número válido.',
+                'precio_costo.min' => 'El precio de proveedor no puede ser negativo.',
+
+                'margen_ganancia.numeric' => 'El margen de ganancia debe ser un número.',
+                'margen_ganancia.min' => 'El margen de ganancia no puede ser negativo.',
+
+                'stock.required' => 'El stock es obligatorio.',
+                'stock.numeric' => 'El stock debe ser un número.',
+                'stock.min' => 'El stock no puede ser negativo.',
+
+                'stock_minimo.required' => 'El stock mínimo es obligatorio.',
+                'stock_minimo.numeric' => 'El stock mínimo debe ser un número.',
+                'stock_minimo.min' => 'El stock mínimo no puede ser negativo.',
+
+                'categoria_id.exists' => 'La categoría seleccionada no es válida.',
+                'unidad_medida_id.exists' => 'La unidad de medida seleccionada no es válida.',
+                'marca_id.exists' => 'La marca seleccionada no es válida.',
+                'proveedor_id.exists' => 'El proveedor seleccionado no es válido.',
+            ]
+        );
+
+
+        $producto->update($validated);
+
+        // Respuesta AJAX
         if ($request->ajax()) {
             return response()->json([
                 'success' => true,
-                'message' => 'Producto actualizado exitosamente',
+                'message' => 'Producto actualizado exitosamente.',
                 'producto' => $producto->load(['categoria', 'marca'])
             ]);
         }
 
-        return redirect()->route('productos.index')->with('success', 'Producto actualizado');
+        return redirect()
+            ->route('productos.index')
+            ->with('success', 'Producto actualizado correctamente.');
     }
 
     public function show(Producto $producto)
@@ -288,6 +340,7 @@ class ProductoController extends Controller
             }
 
             return redirect()->back()->with('success', 'Precios actualizados correctamente');
+
         } catch (\Exception $e) {
             DB::rollBack();
 
@@ -303,19 +356,19 @@ class ProductoController extends Controller
     }
 
     public function restaurar(Producto $producto)
-{
-    // Solo restaurar si está inactivo
-    if ($producto->activo == 0) {
-        $producto->activo = 1;
-        $producto->save();
+    {
+        // Solo restaurar si está inactivo
+        if ($producto->activo == 0) {
+            $producto->activo = 1;
+            $producto->save();
+
+            return redirect()
+                ->back()
+                ->with('success', 'Producto restaurado correctamente.');
+        }
 
         return redirect()
             ->back()
-            ->with('success', 'Producto restaurado correctamente.');
+            ->with('info', 'El producto ya está activo.');
     }
-
-    return redirect()
-        ->back()
-        ->with('info', 'El producto ya está activo.');
-}
 }

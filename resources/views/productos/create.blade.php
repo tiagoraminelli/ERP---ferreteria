@@ -2,7 +2,7 @@
     <x-slot name="header">
         <div class="flex justify-between items-center">
             <div>
-                <h2 class="text-2xl font-bold text-white">Nuevo Producto</h2>
+                <h1 class="text-2xl font-bold text-white">Nuevo Producto</h1>
                 <p class="text-sm text-white-500 dark:text-gray-400">
                     Registro de artículo en el sistema
                 </p>
@@ -40,7 +40,7 @@
 
                         {{-- TÍTULO DEL FORMULARIO --}}
                         <div class="mb-6 pb-4 border-b border-gray-100">
-                            <h3 class="text-sm font-semibold text-gray-700">Información del Producto</h3>
+                            <h2 class="text-sm font-semibold text-gray-700">Información del Producto</h2>
                             <p class="text-xs text-gray-400">Complete todos los campos requeridos (*)</p>
                         </div>
 
@@ -270,24 +270,6 @@
         </div>
     </div>
 
-    {{-- SCRIPT CALCULO AUTOMATICO --}}
-    <script>
-        const costoInput = document.getElementById('precio_costo');
-        const margenInput = document.getElementById('margen_ganancia');
-        const precioInput = document.getElementById('precio');
-
-        function calcularPrecio() {
-            let costo = parseFloat(costoInput.value) || 0;
-            let margen = parseFloat(margenInput.value) || 0;
-            let precioFinal = costo + (costo * (margen / 100));
-            precioInput.value = precioFinal.toFixed(2);
-        }
-
-        costoInput.addEventListener('input', calcularPrecio);
-        margenInput.addEventListener('input', calcularPrecio);
-
-        // Calcular al cargar la página
-        document.addEventListener('DOMContentLoaded', calcularPrecio);
-    </script>
+    <script src="{{ asset('js/create.productos.js') }}"></script>
 
 </x-app-layout>

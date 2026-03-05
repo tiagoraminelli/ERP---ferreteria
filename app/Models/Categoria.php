@@ -19,9 +19,18 @@ class Categoria extends Model
         'activo' => 'boolean',
     ];
 
+    // Relación con productos
+
     public function productos()
-{
-    return $this->hasMany(Producto::class);
-}
+    {
+        return $this->hasMany(Producto::class);
+    }
+
+    // relación con pedidos
+    public function pedidos()
+    {
+        return $this->hasMany(Pedido::class);
+    }
+
 
 }
