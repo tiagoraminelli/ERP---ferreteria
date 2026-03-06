@@ -86,7 +86,7 @@
                         <input type="checkbox" name="eliminados" value="1"
                             {{ request('eliminados') ? 'checked' : '' }}
                             class="rounded border-gray-300 text-black focus:ring-black">
-                        Solo eliminados
+                        Solo ocultos
                     </label>
 
                     <select name="categoria"
