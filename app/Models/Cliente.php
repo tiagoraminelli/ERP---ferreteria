@@ -30,4 +30,10 @@ class Cliente extends Model
         'activo' => 'boolean',
     ];
 
+    // Relación con ventas
+    public function ventas()
+    {
+        return $this->hasMany(Venta::class, 'cliente_id');
+    }
+
 }

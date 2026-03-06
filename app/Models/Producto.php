@@ -52,5 +52,10 @@ class Producto extends Model
         return $this->belongsTo(UnidadMedida::class);
     }
 
+    public function ventaDetalles()
+    {
+        return $this->hasMany(VentaDetalle::class);
+    }
+
 
 }

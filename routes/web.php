@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ClienteController;
+use App\Http\Controllers\VentaController;
 
 Route::view('/', 'welcome');
 
@@ -42,6 +43,13 @@ Route::middleware(['auth'])->group(function () {
         ->name('clientes.activar');
     Route::patch('clientes/{cliente}/desactivar', [ClienteController::class, 'desactivar'])
         ->name('clientes.desactivar');
+
+    // Rutas para la gestión de ventas
+
+    Route::resource('ventas', VentaController::class);
+
+
+
 });
 
 

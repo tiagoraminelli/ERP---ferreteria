@@ -17,6 +17,7 @@
         </div>
     </x-slot>
 
+
     <x-confirm-modal />
 
     <div class="py-8 bg-gray-50 min-h-screen">
