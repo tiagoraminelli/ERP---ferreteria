@@ -11,6 +11,7 @@ use App\Models\UnidadMedida;
 // dependencias de soporte
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Validator;
 
 class ProductoController extends Controller
 {
@@ -294,66 +295,84 @@ class ProductoController extends Controller
     }
 
     // En ProductoController.php
-    public function bulkUpdatePrices(Request $request)
+
+    public function bulkUpdate(Request $request)
     {
-        $request->validate([
-            'productos' => 'required|string',
-            'tipo_actualizacion' => 'required|in:fijo,porcentaje_aumento,porcentaje_disminucion',
-            'precio_fijo' => 'required_if:tipo_actualizacion,fijo|numeric|min:0|nullable',
-            'porcentaje' => 'required_if:tipo_actualizacion,porcentaje_aumento,porcentaje_disminucion|numeric|nullable'
+        // 1. Validaciones estrictas
+        $validator = Validator::make($request->all(), [
+            'productos' => 'required|array|min:1',
+            'productos.*' => 'exists:productos,id',
+            'campo' => 'required|in:precio,precio_costo,stock,margen_ganancia',
+            'tipo' => 'required|in:fijo,sumar,restar',
+            'valor' => 'required|numeric|min:0',
         ]);
 
-        $productosIds = explode(',', $request->productos);
-        $productos = Producto::whereIn('id', $productosIds)->get();
+        if ($validator->fails()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Datos inválidos: ' . implode(', ', $validator->errors()->all())
+            ], 422);
+        }
 
-        DB::beginTransaction();
+        // Mapeo de campos (por si los nombres en el JS difieren de la DB)
+        $mapaCampos = [
+            'precio' => 'precio',
+            'precio_costo' => 'precio_costo', // Ajusta según tus nombres reales en la tabla
+            'stock' => 'stock',
+            'margen_ganancia' => 'margen'
+        ];
+
+        $nombreCampoReal = $mapaCampos[$request->campo];
+
         try {
-            foreach ($productos as $producto) {
-                $precioAnterior = $producto->precio;
+            DB::beginTransaction();
 
-                switch ($request->tipo_actualizacion) {
+            $productos = Producto::whereIn('id', $request->productos)->get();
+
+            foreach ($productos as $producto) {
+                $valorBase = (float) $producto->{$nombreCampoReal};
+                $modificador = (float) $request->valor;
+                $nuevoValor = 0;
+
+                switch ($request->tipo) {
                     case 'fijo':
-                        $nuevoPrecio = $request->precio_fijo;
+                        $nuevoValor = $modificador;
                         break;
-                    case 'porcentaje_aumento':
-                        $nuevoPrecio = $producto->precio * (1 + ($request->porcentaje / 100));
+                    case 'sumar':
+                        $nuevoValor = $valorBase + ($valorBase * ($modificador / 100));
                         break;
-                    case 'porcentaje_disminucion':
-                        $nuevoPrecio = $producto->precio * (1 - ($request->porcentaje / 100));
+                    case 'restar':
+                        $nuevoValor = $valorBase - ($valorBase * ($modificador / 100));
                         break;
                 }
 
-                $producto->update(['precio' => $nuevoPrecio]);
+                // Validar que el valor no sea negativo (especialmente en restas)
+                $nuevoValor = max(0, $nuevoValor);
 
-                // Registrar el cambio en historial (si tienes tabla de historial)
-                // $producto->historialPrecios()->create([...]);
+                // Si es stock, redondeamos a entero
+                if ($nombreCampoReal === 'stock') {
+                    $nuevoValor = round($nuevoValor);
+                }
+
+                $producto->{$nombreCampoReal} = $nuevoValor;
+                $producto->save();
             }
 
             DB::commit();
 
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => true,
-                    'message' => 'Precios actualizados correctamente',
-                    'updated_count' => $productos->count()
-                ]);
-            }
-
-            return redirect()->back()->with('success', 'Precios actualizados correctamente');
-
+            return response()->json([
+                'success' => true,
+                'message' => count($productos) . ' productos actualizados correctamente.'
+            ]);
         } catch (\Exception $e) {
             DB::rollBack();
-
-            if ($request->ajax()) {
-                return response()->json([
-                    'success' => false,
-                    'message' => 'Error al actualizar precios: ' . $e->getMessage()
-                ], 500);
-            }
-
-            return redirect()->back()->with('error', 'Error al actualizar precios');
+            return response()->json([
+                'success' => false,
+                'message' => 'Error crítico: ' . $e->getMessage()
+            ], 500);
         }
     }
+
 
     public function restaurar(Producto $producto)
     {
