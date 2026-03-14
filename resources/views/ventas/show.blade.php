@@ -96,7 +96,7 @@
                             @foreach($venta->detalles as $detalle)
                                 <tr class="border-b border-dashed border-gray-100">
                                     <td class="py-2 text-gray-600">{{ number_format($detalle->cantidad, 3) }}</td>
-                                    <td class="py-2 text-gray-600">{{ $detalle->producto->nombre }}</td>
+                                    <td class="py-2 text-gray-600">{{ $detalle->producto->nombre ?? 'sin nombre' }} </td>
                                     <td class="text-right py-2 text-gray-600">$ {{ number_format($detalle->precio, 2) }}</td>
                                     <td class="text-right py-2 text-gray-800 font-medium">$ {{ number_format($detalle->subtotal, 2) }}</td>
                                 </tr>

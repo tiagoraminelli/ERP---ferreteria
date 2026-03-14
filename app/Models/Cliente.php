@@ -30,10 +30,28 @@ class Cliente extends Model
         'activo' => 'boolean',
     ];
 
-    // Relación con ventas
+
+    // Cliente -> muchas ventas
     public function ventas()
     {
-        return $this->hasMany(Venta::class, 'cliente_id');
+        return $this->hasMany(Venta::class);
     }
 
+    // Cliente -> movimientos cuenta corriente
+    public function cuentaCorriente()
+    {
+        return $this->hasMany(CuentaCorrienteMovimiento::class);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | HELPERS (muy útiles)
+    |--------------------------------------------------------------------------
+    */
+
+    // saldo calculado desde movimientos
+    public function saldoCalculado()
+    {
+        return $this->cuentaCorriente()->sum('monto');
+    }
 }

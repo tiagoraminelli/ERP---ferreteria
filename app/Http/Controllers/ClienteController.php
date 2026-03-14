@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Cliente;
+use App\Models\Venta;
+use App\Models\CuentaCorrienteMovimiento as CuentaCorriente;
 
 class ClienteController extends Controller
 {
@@ -144,10 +146,51 @@ class ClienteController extends Controller
      */
     public function show(Cliente $cliente)
     {
+        $ventas = Venta::where('cliente_id', $cliente->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'ventas_page');
+
+        $movimientos = CuentaCorriente::where('cliente_id', $cliente->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'movimientos_page');
+
+
+        // ESTADÍSTICAS
+        $totalCompras = $cliente->ventas()->count();
+
+        $montoTotal = $cliente->ventas()->sum('total');
+
+        $ticketPromedio = $totalCompras > 0
+            ? $montoTotal / $totalCompras
+            : 0;
+
+        $ultimaCompra = $cliente->ventas()
+            ->latest()
+            ->first();
+
+        $saldo = $cliente->cuentaCorriente()
+            ->sum('monto');
+
+        $creditoDisponible = $cliente->limite_credito - $saldo;
+
+        $totalPagado = $cliente->ventas()
+            ->sum('monto_pagado');
+
+
         return view('clientes.show', compact(
-            'cliente'
+            'cliente',
+            'ventas',
+            'movimientos',
+            'totalCompras',
+            'montoTotal',
+            'ticketPromedio',
+            'ultimaCompra',
+            'saldo',
+            'creditoDisponible',
+            'totalPagado'
         ));
     }
+
 
 
     /**
