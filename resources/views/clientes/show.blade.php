@@ -298,7 +298,7 @@
 
                                         <a href="{{ route('ventas.edit', $venta->id) }}"
                                             onclick="event.stopPropagation();"
-                                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition"
+                                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition cursor-pointer text-center"
                                             title="Editar">
 
                                             <svg class="w-4 h-4" fill="none" stroke="currentColor"
