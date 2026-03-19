@@ -13,57 +13,62 @@ class ClienteController extends Controller
     /**
      * LISTADO
      */
-    public function index(Request $request)
-    {
-        $query = Cliente::query();
+   public function index(Request $request)
+{
+    $query = Cliente::query();
 
-        // ================= FILTROS =================
+    // ================= FILTROS =================
 
-        if ($request->filled('buscar')) {
-
-            $buscar = $request->buscar;
-
-            $query->where(function ($q) use ($buscar) {
-                $q->where('nombre', 'like', "%{$buscar}%")
-                    ->orWhere('documento', 'like', "%{$buscar}%")
-                    ->orWhere('telefono', 'like', "%{$buscar}%");
-            });
-        }
-
-        if ($request->filled('estado')) {
-
-            if ($request->estado === 'activos') {
-                $query->where('activo', true);
-            }
-
-            if ($request->estado === 'inactivos') {
-                $query->where('activo', false);
-            }
-        }
-
-        if ($request->filled('deuda')) {
-
-            if ($request->deuda === 'con_deuda') {
-                $query->where('saldo_cuenta_corriente', '>', 0);
-            }
-
-            if ($request->deuda === 'sin_deuda') {
-                $query->where('saldo_cuenta_corriente', '<=', 0);
-            }
-        }
-
-        // ================= ORDEN =================
-
-        $query->orderBy('nombre');
-
-        $clientes = $query
-            ->paginate(20)
-            ->withQueryString();
-
-        return view('clientes.index', compact(
-            'clientes'
-        ));
+    // Por defecto, mostrar solo activos
+    if (!$request->filled('estado')) {
+        $query->where('activo', true);
     }
+
+    if ($request->filled('buscar')) {
+
+        $buscar = $request->buscar;
+
+        $query->where(function ($q) use ($buscar) {
+            $q->where('nombre', 'like', "%{$buscar}%")
+                ->orWhere('documento', 'like', "%{$buscar}%")
+                ->orWhere('telefono', 'like', "%{$buscar}%");
+        });
+    }
+
+    if ($request->filled('estado')) {
+
+        if ($request->estado === 'activos') {
+            $query->where('activo', true);
+        }
+
+        if ($request->estado === 'inactivos') {
+            $query->where('activo', false);
+        }
+    }
+
+    if ($request->filled('deuda')) {
+
+        if ($request->deuda === 'con_deuda') {
+            $query->where('saldo_cuenta_corriente', '>', 0);
+        }
+
+        if ($request->deuda === 'sin_deuda') {
+            $query->where('saldo_cuenta_corriente', '<=', 0);
+        }
+    }
+
+    // ================= ORDEN =================
+
+    $query->orderBy('nombre');
+
+    $clientes = $query
+        ->paginate(20)
+        ->withQueryString();
+
+    return view('clientes.index', compact(
+        'clientes'
+    ));
+}
 
 
     /**

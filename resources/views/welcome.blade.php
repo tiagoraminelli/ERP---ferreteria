@@ -17,149 +17,175 @@
 
 <body class="antialiased font-sans">
 
-    <div class="bg-gray-50 text-black/50 dark:bg-black dark:text-white/50">
+    <div class="bg-gray-50 dark:bg-black text-black/70 dark:text-white/70 min-h-screen relative">
 
-        <!-- Background decorativo -->
-        <img id="background" class="hidden lg:block absolute -left-20 top-0 max-w-[877px] opacity-40"
+        <!-- Background -->
+        <img class="hidden lg:block absolute -left-20 top-0 max-w-[800px] opacity-30"
             src="https://laravel.com/assets/img/welcome/background.svg" />
 
-        <div
-            class="relative min-h-screen flex flex-col items-center justify-center selection:bg-orange-600 selection:text-white px-4">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
-            <div class="relative w-full max-w-7xl">
+            <!-- HEADER -->
+            <header class="flex flex-col sm:flex-row items-center justify-between py-8 gap-4">
 
-                <!-- HEADER -->
-                <header class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 items-center gap-4 py-10">
+                <div class="flex items-center gap-3">
+                    <i class="fas fa-screwdriver-wrench text-3xl sm:text-4xl text-orange-600"></i>
+                    <span class="text-lg sm:text-xl font-semibold text-black dark:text-white">
+                        Pro-Gest ERP
+                    </span>
+                </div>
 
-                    <div class="flex justify-center sm:justify-start lg:justify-center lg:col-start-2">
-                        <div class="text-orange-600 dark:text-orange-500">
-                            <i class="fas fa-screwdriver-wrench text-4xl sm:text-5xl"></i>
-                        </div>
-                    </div>
+                @if (Route::has('login'))
+                    <livewire:welcome.navigation />
+                @endif
 
-                    @if (Route::has('login'))
-                        <livewire:welcome.navigation />
-                    @endif
+            </header>
 
-                </header>
+            <!-- MAIN -->
+            <main class="pb-10">
 
-                <!-- MAIN -->
-                <main class="mt-6">
+                <!-- GRID: 2 COLUMNAS EN ESCRITORIO, 1 EN MÓVIL -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
+                    <!-- INVENTARIO / PRODUCTOS -->
+                    <a href="javascript:void(0)"
+                       data-destination="/productos"
+                       onclick="handleNavigation(event, this.dataset.destination)"
+                       class="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition h-full group cursor-pointer">
 
-                        <!-- INVENTARIO -->
-                        <a href="/inventario"
-                            class="flex flex-col gap-6 overflow-hidden rounded-lg bg-white p-6 shadow-lg transition hover:scale-[1.02] hover:ring-2 hover:ring-orange-500 dark:bg-zinc-900">
-
-                            <div class="relative w-full">
-                                <img src="{{ asset('assets/img/dashboard-preview.png') }}" alt="Inventario"
-                                    class="w-full h-48 sm:h-56 md:h-64 object-cover rounded-lg"
-                                    onerror="this.src='https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?q=80&w=1000&auto=format&fit=crop'">
-                            </div>
-
-                            <div class="flex items-start gap-4">
-
-                                <div
-                                    class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-600/10">
-                                    <i class="fas fa-boxes-stacked text-orange-600 text-lg sm:text-xl"></i>
-                                </div>
-
-                                <div>
-                                    <h2 class="text-lg sm:text-xl font-semibold text-black dark:text-white">
-                                        Control de Stock Maestro
-                                    </h2>
-
-                                    <p class="mt-2 text-sm leading-relaxed">
-                                        Gestión centralizada de artículos, control de SKU, alertas de stock crítico
-                                        y actualización masiva de precios mediante Excel.
-                                    </p>
-                                </div>
-
-                            </div>
-
-                        </a>
-
-
-                        <!-- VENTAS -->
-                        <a href="/ventas"
-                            class="flex gap-4 rounded-lg bg-white p-6 shadow-lg transition hover:scale-[1.02] hover:ring-2 hover:ring-orange-500 dark:bg-zinc-900">
-
-                            <div
-                                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-600/10">
-                                <i class="fas fa-cash-register text-orange-600 text-lg"></i>
-                            </div>
-
-                            <div>
-                                <h2 class="text-lg sm:text-xl font-semibold text-black dark:text-white">
-                                    Punto de Venta Rápido
-                                </h2>
-
-                                <p class="mt-2 text-sm leading-relaxed">
-                                    Lectura de códigos de barra, múltiples medios de pago,
-                                    tickets y presupuestos instantáneos.
-                                </p>
-                            </div>
-
-                        </a>
-
-
-                        <!-- REPORTES -->
-                        <a href="/reportes"
-                            class="flex gap-4 rounded-lg bg-white p-6 shadow-lg transition hover:scale-[1.02] hover:ring-2 hover:ring-orange-500 dark:bg-zinc-900">
-
-                            <div
-                                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-600/10">
-                                <i class="fas fa-chart-line text-orange-600 text-lg"></i>
-                            </div>
-
-                            <div>
-                                <h2 class="text-lg sm:text-xl font-semibold text-black dark:text-white">
-                                    Inteligencia de Negocio
-                                </h2>
-
-                                <p class="mt-2 text-sm leading-relaxed">
-                                    Visualiza márgenes, productos más vendidos y rendimiento
-                                    diario del negocio.
-                                </p>
-                            </div>
-
-                        </a>
-
-
-                        <!-- CRM -->
-                        <div class="flex gap-4 rounded-lg bg-white p-6 shadow-lg dark:bg-zinc-900">
-
-                            <div
-                                class="flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 rounded-full bg-orange-600/10">
-                                <i class="fas fa-users-gear text-orange-600 text-lg"></i>
-                            </div>
-
-                            <div>
-                                <h2 class="text-lg sm:text-xl font-semibold text-black dark:text-white">
-                                    CRM & Compras
-                                </h2>
-
-                                <p class="mt-2 text-sm leading-relaxed">
-                                    Gestión de clientes, cuentas corrientes,
-                                    proveedores y control de pedidos.
-                                </p>
-                            </div>
-
+                        <div class="relative overflow-hidden">
+                            <img src="{{ asset('assets/img/dashboard-preview.png') }}"
+                                 class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1581235720704-06d3acfcb36f?q=80&w=1000&auto=format&fit=crop'">
                         </div>
 
-                    </div>
+                        <div class="p-6 flex gap-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full bg-orange-600/10 shrink-0">
+                                <i class="fas fa-boxes-stacked text-orange-600 text-xl"></i>
+                            </div>
 
-                </main>
+                            <div>
+                                <h2 class="text-xl font-semibold text-black dark:text-white">
+                                    Control de Stock Maestro
+                                </h2>
 
-                <!-- FOOTER -->
-                <footer class="py-12 text-center text-sm text-black dark:text-white/70 font-medium">
-                    &copy; 2026 Ferretería Pro-Gest - Sistema Integral v1.0
-                </footer>
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    Gestión de artículos, SKU, stock crítico y actualización masiva.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
 
-            </div>
+                    <!-- VENTAS / PUNTO DE VENTA -->
+                    <a href="javascript:void(0)"
+                       data-destination="/ventas"
+                       onclick="handleNavigation(event, this.dataset.destination)"
+                       class="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition h-full group cursor-pointer">
+
+                        <div class="relative overflow-hidden">
+                            <img src="{{ asset('assets/img/dashboard-preview.png') }}"
+                                 class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=1000&auto=format&fit=crop'">
+                        </div>
+
+                        <div class="p-6 flex gap-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full bg-orange-600/10 shrink-0">
+                                <i class="fas fa-cash-register text-orange-600 text-xl"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-xl font-semibold text-black dark:text-white">
+                                    Punto de Venta
+                                </h2>
+
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    Ventas rápidas, códigos de barra y tickets automáticos.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- REPORTES / DASHBOARD -->
+                    <a href="javascript:void(0)"
+                       data-destination="/dashboard"
+                       onclick="handleNavigation(event, this.dataset.destination)"
+                       class="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition h-full group cursor-pointer">
+
+                        <div class="relative overflow-hidden">
+                            <img src="{{ asset('assets/img/dashboard-preview.png') }}"
+                                 class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=1000&auto=format&fit=crop'">
+                        </div>
+
+                        <div class="p-6 flex gap-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full bg-orange-600/10 shrink-0">
+                                <i class="fas fa-chart-line text-orange-600 text-xl"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-xl font-semibold text-black dark:text-white">
+                                    Reportes & Dashboard
+                                </h2>
+
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    Métricas, productos más vendidos y rendimiento diario.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+
+                    <!-- CRM / CLIENTES -->
+                    <a href="javascript:void(0)"
+                       data-destination="/clientes"
+                       onclick="handleNavigation(event, this.dataset.destination)"
+                       class="flex flex-col bg-white dark:bg-zinc-900 rounded-xl shadow-lg overflow-hidden hover:shadow-2xl transition h-full group cursor-pointer">
+
+                        <div class="relative overflow-hidden">
+                            <img src="{{ asset('assets/img/dashboard-preview.png') }}"
+                                 class="w-full h-48 object-cover group-hover:scale-105 transition duration-300"
+                                 onerror="this.src='https://images.unsplash.com/photo-1556742044-3c52d6e88c62?q=80&w=1000&auto=format&fit=crop'">
+                        </div>
+
+                        <div class="p-6 flex gap-4">
+                            <div class="w-14 h-14 flex items-center justify-center rounded-full bg-orange-600/10 shrink-0">
+                                <i class="fas fa-users-gear text-orange-600 text-xl"></i>
+                            </div>
+
+                            <div>
+                                <h2 class="text-xl font-semibold text-black dark:text-white">
+                                    CRM & Clientes
+                                </h2>
+
+                                <p class="mt-2 text-sm text-gray-600 dark:text-gray-400">
+                                    Gestión de clientes, proveedores y cuentas corrientes.
+                                </p>
+                            </div>
+                        </div>
+                    </a>
+
+                </div>
+
+            </main>
+
+            <!-- FOOTER -->
+            <footer class="py-8 sm:py-10 text-center text-xs sm:text-sm text-black dark:text-white/60 border-t border-gray-200 dark:border-zinc-800">
+                &copy; 2026 Ferretería Pro-Gest - Sistema Integral
+            </footer>
+
         </div>
     </div>
+
+    <script>
+        function handleNavigation(event, destination) {
+            event.preventDefault();
+
+            @auth
+                window.location.href = destination;
+            @else
+                window.location.href = '/login?redirect=' + encodeURIComponent(destination);
+            @endauth
+        }
+    </script>
 
 </body>
 
