@@ -13,62 +13,62 @@ class ClienteController extends Controller
     /**
      * LISTADO
      */
-   public function index(Request $request)
-{
-    $query = Cliente::query();
+    public function index(Request $request)
+    {
+        $query = Cliente::query();
 
-    // ================= FILTROS =================
+        // ================= FILTROS =================
 
-    // Por defecto, mostrar solo activos
-    if (!$request->filled('estado')) {
-        $query->where('activo', true);
-    }
-
-    if ($request->filled('buscar')) {
-
-        $buscar = $request->buscar;
-
-        $query->where(function ($q) use ($buscar) {
-            $q->where('nombre', 'like', "%{$buscar}%")
-                ->orWhere('documento', 'like', "%{$buscar}%")
-                ->orWhere('telefono', 'like', "%{$buscar}%");
-        });
-    }
-
-    if ($request->filled('estado')) {
-
-        if ($request->estado === 'activos') {
+        // Por defecto, mostrar solo activos
+        if (!$request->filled('estado')) {
             $query->where('activo', true);
         }
 
-        if ($request->estado === 'inactivos') {
-            $query->where('activo', false);
+        if ($request->filled('buscar')) {
+
+            $buscar = $request->buscar;
+
+            $query->where(function ($q) use ($buscar) {
+                $q->where('nombre', 'like', "%{$buscar}%")
+                    ->orWhere('documento', 'like', "%{$buscar}%")
+                    ->orWhere('telefono', 'like', "%{$buscar}%");
+            });
         }
+
+        if ($request->filled('estado')) {
+
+            if ($request->estado === 'activos') {
+                $query->where('activo', true);
+            }
+
+            if ($request->estado === 'inactivos') {
+                $query->where('activo', false);
+            }
+        }
+
+        if ($request->filled('deuda')) {
+
+            if ($request->deuda === 'con_deuda') {
+                $query->where('saldo_cuenta_corriente', '>', 0);
+            }
+
+            if ($request->deuda === 'sin_deuda') {
+                $query->where('saldo_cuenta_corriente', '<=', 0);
+            }
+        }
+
+        // ================= ORDEN =================
+
+        $query->orderBy('nombre');
+
+        $clientes = $query
+            ->paginate(20)
+            ->withQueryString();
+
+        return view('clientes.index', compact(
+            'clientes'
+        ));
     }
-
-    if ($request->filled('deuda')) {
-
-        if ($request->deuda === 'con_deuda') {
-            $query->where('saldo_cuenta_corriente', '>', 0);
-        }
-
-        if ($request->deuda === 'sin_deuda') {
-            $query->where('saldo_cuenta_corriente', '<=', 0);
-        }
-    }
-
-    // ================= ORDEN =================
-
-    $query->orderBy('nombre');
-
-    $clientes = $query
-        ->paginate(20)
-        ->withQueryString();
-
-    return view('clientes.index', compact(
-        'clientes'
-    ));
-}
 
 
     /**
@@ -151,62 +151,77 @@ class ClienteController extends Controller
      */
 
 
-public function show(Cliente $cliente)
-{
-    // ================= VENTAS (SIN CUENTA CORRIENTE) =================
-    $ventas = Venta::where('cliente_id', $cliente->id)
-        ->where('metodo_pago', '!=', 'cuenta_corriente') // 🔥 CLAVE
-        ->orderBy('created_at', 'desc')
-        ->paginate(10, ['*'], 'ventas_page');
+    public function show(Cliente $cliente)
+    {
+        // ================= VENTAS (SIN CUENTA CORRIENTE) =================
+        $ventas = Venta::where('cliente_id', $cliente->id)
+            ->where('metodo_pago', '!=', 'cuenta_corriente')
+            ->orderBy('created_at', 'desc')
+            ->paginate(10, ['*'], 'ventas_page');
 
-    // ================= MOVIMIENTOS =================
-    $movimientos = CuentaCorriente::where('cliente_id', $cliente->id)
-        ->orderBy('fecha', 'desc')
-        ->paginate(10, ['*'], 'movimientos_page');
+        // ================= MOVIMIENTOS =================
+        $movimientos = CuentaCorriente::where('cliente_id', $cliente->id)
+            ->orderBy('fecha', 'desc')
+            ->paginate(10, ['*'], 'movimientos_page');
 
+        // ================= ESTADÍSTICAS BASADAS EN DETALLES =================
 
-    // ================= ESTADÍSTICAS =================
+        // Obtener todas las ventas del cliente (excluyendo cuenta corriente)
+        $ventasCliente = Venta::where('cliente_id', $cliente->id)
+            ->where('metodo_pago', '!=', 'cuenta_corriente')
+            ->get();
 
-    // 🔥 también excluimos cuenta corriente para coherencia
-    $ventasQuery = $cliente->ventas();
+        // Total de compras (cantidad de ventas)
+        $totalCompras = $ventasCliente->count();
 
-    $totalCompras = $ventasQuery->count();
+        // Calcular monto total comprado desde los detalles
+        $montoTotal = 0;
+        foreach ($ventasCliente as $venta) {
+            foreach ($venta->detalles as $detalle) {
+                // Usar el subtotal del detalle (que ya incluye descuentos)
+                $montoTotal += $detalle->subtotal ?? ($detalle->cantidad * $detalle->precio);
+            }
+        }
 
+        // Ticket promedio (montoTotal / totalCompras)
+        $ticketPromedio = $totalCompras > 0 ? $montoTotal / $totalCompras : 0;
 
-    $montoTotal = $ventasQuery->sum('total');
+        // Última compra
+        $ultimaCompra = $ventasCliente->sortByDesc('created_at')->first();
 
-    $ticketPromedio = $totalCompras > 0
-        ? $montoTotal / $totalCompras
-        : 0;
+        // ================= SALDO EN VENTAS (PAGOS PARCIALES) =================
+        $saldoVentas = 0;
+        foreach ($ventasCliente as $venta) {
+            $totalDetalles = 0;
+            foreach ($venta->detalles as $detalle) {
+                $totalDetalles += $detalle->subtotal ?? ($detalle->cantidad * $detalle->precio);
+            }
+            $saldoVentas += $totalDetalles - $venta->monto_pagado;
+        }
 
-    $ultimaCompra = $ventasQuery
-        ->latest()
-        ->first();
+        // ================= CUENTA CORRIENTE =================
+        $saldo = $cliente->cuentaCorriente()->sum('monto');
 
-    // ================= CUENTA CORRIENTE =================
+        // ================= CRÉDITO DISPONIBLE =================
+        $creditoDisponible = ($cliente->limite_credito ?? 0) - $saldo;
 
-    $saldo = $cliente->cuentaCorriente()->sum('monto');
+        // ================= TOTAL PAGADO (suma de todos los pagos) =================
+        $totalPagado = $ventasCliente->sum('monto_pagado');
 
-    $creditoDisponible = $cliente->limite_credito - $saldo;
-
-    $totalPagado = $cliente->ventas()
-        ->where('metodo_pago', '!=', 'cuenta_corriente') // coherente
-        ->sum('monto_pagado');
-
-
-    return view('clientes.show', compact(
-        'cliente',
-        'ventas',
-        'movimientos',
-        'totalCompras',
-        'montoTotal',
-        'ticketPromedio',
-        'ultimaCompra',
-        'saldo',
-        'creditoDisponible',
-        'totalPagado'
-    ));
-}
+        return view('clientes.show', compact(
+            'cliente',
+            'ventas',
+            'movimientos',
+            'totalCompras',
+            'montoTotal',
+            'ticketPromedio',
+            'ultimaCompra',
+            'saldo',
+            'saldoVentas',
+            'creditoDisponible',
+            'totalPagado'
+        ));
+    }
 
     /**
      * FORM EDITAR
