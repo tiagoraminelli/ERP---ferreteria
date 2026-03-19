@@ -56,9 +56,9 @@
                             <option></option>
                             @foreach ($productos as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
-                                    data-precio="{{ $producto->precio_venta }}"
+                                    data-precio="{{ $producto->precio }}"
                                     data-codigo="{{ $producto->codigo_barra }}">
-                                    {{ $producto->nombre }} - ${{ number_format($producto->precio_venta, 2) }}
+                                    {{ $producto->nombre }} - ${{ number_format($producto->precio, 2) }}
                                 </option>
                             @endforeach
                         </select>
@@ -69,7 +69,7 @@
                                     onclick="agregarProducto(
 '{{ $producto->id }}',
 '{{ addslashes($producto->nombre) }}',
-'{{ $producto->precio_venta }}'
+'{{ $producto->precio }}'
 )"
                                     style="display:block;width:100%;text-align:left;padding:10px;border:1px solid #eee;margin:2px 0;border-radius:4px;background:white;cursor:pointer;transition:background 0.2s;"
                                     onmouseover="this.style.backgroundColor='#f9f9f9'"
@@ -84,7 +84,7 @@
                                             @endif
                                         </div>
                                         <div style="font-weight:bold;color:#059669">
-                                            $ {{ number_format($producto->precio_venta, 2) }}
+                                            $ {{ number_format($producto->precio, 2) }}
                                         </div>
                                     </div>
                                 </button>
@@ -133,9 +133,13 @@
                                         <option value="efectivo"
                                             {{ ($venta->metodo_pago ?? old('metodo_pago')) == 'efectivo' ? 'selected' : '' }}>
                                             Efectivo</option>
-                                        <option value="tarjeta"
-                                            {{ ($venta->metodo_pago ?? old('metodo_pago')) == 'tarjeta' ? 'selected' : '' }}>
-                                            Tarjeta</option>
+                                        <option value="tarjeta_credito"
+                                            {{ ($venta->metodo_pago ?? old('metodo_pago')) == 'tarjeta_credito' ? 'selected' : '' }}>
+                                            Tarjeta Crédito</option>
+                                        <option value="tarjeta_debito"
+                                            {{ ($venta->metodo_pago ?? old('metodo_pago')) == 'tarjeta_debito' ? 'selected' : '' }}>
+                                            Tarjeta Débito</option>
+
                                         <option value="transferencia"
                                             {{ ($venta->metodo_pago ?? old('metodo_pago')) == 'transferencia' ? 'selected' : '' }}>
                                             Transferencia</option>

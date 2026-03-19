@@ -55,9 +55,9 @@
                             <option></option>
                             @foreach ($productos as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
-                                    data-precio="{{ $producto->precio_venta }}"
+                                    data-precio="{{ $producto->precio }}"
                                     data-codigo="{{ $producto->codigo_barra }}">
-                                    {{ $producto->nombre }} - ${{ number_format($producto->precio_venta, 2) }}
+                                    {{ $producto->nombre }} - ${{ number_format($producto->precio, 2) }}
                                 </option>
                             @endforeach
                         </select>
@@ -68,7 +68,7 @@
                                     onclick="agregarProducto(
 '{{ $producto->id }}',
 '{{ addslashes($producto->nombre) }}',
-'{{ $producto->precio_venta }}'
+'{{ $producto->precio }}'
 )"
                                     style="display:block;width:100%;text-align:left;padding:10px;border:1px solid #eee;margin:2px 0;border-radius:4px;background:white;cursor:pointer;transition:background 0.2s;"
                                     onmouseover="this.style.backgroundColor='#f9f9f9'"
@@ -83,7 +83,7 @@
                                             @endif
                                         </div>
                                         <div style="font-weight:bold;color:#059669">
-                                            $ {{ number_format($producto->precio_venta, 2) }}
+                                            $ {{ number_format($producto->precio, 2) }}
                                         </div>
                                     </div>
                                 </button>
@@ -129,13 +129,20 @@
 
                                     <select name="metodo_pago" id="metodo_pago"
                                         style="width:100%;padding:8px;border:1px solid #ddd;border-radius:4px;background:white">
+
                                         <option value="efectivo"
                                             {{ old('metodo_pago') == 'efectivo' ? 'selected' : '' }}>Efectivo</option>
-                                        <option value="tarjeta"
-                                            {{ old('metodo_pago') == 'tarjeta' ? 'selected' : '' }}>Tarjeta</option>
+
+                                        <option value="tarjeta_credito"
+                                            {{ old('metodo_pago') == 'tarjeta_credito' ? 'selected' : '' }}>Tarjeta de Crédito</option>
+
+                                        <option value="tarjeta_debito"
+                                            {{ old('metodo_pago') == 'tarjeta_debito' ? 'selected' : '' }}>Tarjeta de Débito</option>
+
                                         <option value="transferencia"
                                             {{ old('metodo_pago') == 'transferencia' ? 'selected' : '' }}>Transferencia
                                         </option>
+
                                         <option value="cuenta_corriente"
                                             {{ old('metodo_pago') == 'cuenta_corriente' ? 'selected' : '' }}>Cuenta
                                             Corriente</option>
@@ -232,7 +239,7 @@
                                                         <td style="text-align:center">
                                                             <input type="number" step="0.01"
                                                                 name="productos[{{ $index }}][precio]"
-                                                                value="{{ $item['precio'] ?? $producto->precio_venta }}"
+                                                                value="{{ $item['precio'] ?? $producto->precio }}"
                                                                 oninput="calcular()"
                                                                 style="width:80px;padding:5px;border:1px solid #ddd;border-radius:4px">
                                                         </td>

@@ -5,6 +5,7 @@ use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\PedidoController;
 use App\Http\Controllers\ClienteController;
 use App\Http\Controllers\VentaController;
+use App\Http\Controllers\CuentaCorrienteMovimientoController;
 
 Route::view('/', 'welcome');
 
@@ -50,6 +51,10 @@ Route::middleware(['auth'])->group(function () {
     // Rutas para la gestión de ventas
 
     Route::resource('ventas', VentaController::class);
+
+    // Rutas para la gestión de movimientos de cuenta corriente
+    Route::get('/clientes/{cliente}/cuenta-corriente', [CuentaCorrienteMovimientoController::class, 'index'])
+        ->name('cuenta_corriente.index');
 });
 
 

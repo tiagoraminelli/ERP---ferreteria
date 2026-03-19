@@ -5,7 +5,7 @@
 
             <div>
                 <h2 class="text-2xl font-bold text-white dark:text-gray-900">
-                    {{ $cliente->nombre }}
+                    {{ $cliente->nombre }} | #{{ str_pad($cliente->id, 3, '0', STR_PAD_LEFT) }} | {{ $cliente->activo ? 'Activo' : 'Inactivo' }}
                 </h2>
 
                 <p class="text-sm text-black-500 dark:text-gray-400">
@@ -117,23 +117,6 @@
                         </div>
 
 
-                        <div class="text-right">
-
-                            <p class="text-xs text-gray-400 uppercase mb-1">
-                                Estado
-                            </p>
-
-                            @if ($cliente->activo)
-                                <span class="px-3 py-1 text-xs font-bold rounded-full bg-emerald-100 text-emerald-700">
-                                    Activo
-                                </span>
-                            @else
-                                <span class="px-3 py-1 text-xs font-bold rounded-full bg-red-100 text-red-600">
-                                    Inactivo
-                                </span>
-                            @endif
-
-                        </div>
 
                     </div>
 
@@ -222,6 +205,10 @@
                                     Fecha
                                 </th>
 
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
+                                    Metodo de pago
+                                </th>
+
                                 <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase">
                                     Total
                                 </th>
@@ -264,6 +251,10 @@
 
                                     <td class="px-6 py-4 text-gray-600">
                                         {{ $venta->created_at->format('d/m/Y') }}
+                                    </td>
+
+                                    <td class="px-6 py-4 text-gray-600">
+                                        {{ $venta->metodo_pago }}
                                     </td>
 
                                     <td class="px-6 py-4 text-right font-semibold">
@@ -366,7 +357,7 @@
                                 </th>
 
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
-                                    Venta
+                                    refencia de venta
                                 </th>
 
                                 <th class="px-6 py-4 text-right text-xs font-semibold text-gray-500 uppercase">
@@ -375,6 +366,10 @@
 
                                 <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
                                     Descripción
+                                </th>
+
+                                <th class="px-6 py-4 text-left text-xs font-semibold text-gray-500 uppercase">
+                                    Acciones
                                 </th>
 
                             </tr>
@@ -387,7 +382,7 @@
                                 <tr class="hover:bg-gray-50 transition">
 
                                     <td class="px-6 py-4">
-                                        {{ $mov->created_at->format('d/m/Y') }}
+                                        {{ \Carbon\Carbon::parse($mov->fecha)->format('d/m/Y') }}
                                     </td>
 
                                     <td class="px-6 py-4 capitalize">
@@ -395,8 +390,16 @@
                                     </td>
 
                                     <td class="px-6 py-4">
-                                        {{ $mov->venta_id ? '#' . str_pad($mov->venta_id, 8, '0', STR_PAD_LEFT) : '-' }}
+                                        @if ($mov->referencia_id)
+                                            <a href="{{ route('ventas.show', $mov->referencia_id) }}"
+                                                class="text-blue-600 hover:text-blue-800 hover:underline">
+                                                #{{ str_pad($mov->referencia_id, 8, '0', STR_PAD_LEFT) }}
+                                            </a>
+                                        @else
+                                            -
+                                        @endif
                                     </td>
+
 
                                     <td
                                         class="px-6 py-4 text-right font-semibold
@@ -406,6 +409,24 @@
 
                                     <td class="px-6 py-4">
                                         {{ $mov->descripcion ?? '-' }}
+                                    </td>
+
+                                    <td class="px-6 py-4 text-center">
+
+                                        <a href="{{ route('ventas.edit', $mov->referencia_id) }}"
+                                            onclick="event.stopPropagation();"
+                                            class="p-2 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition cursor-pointer text-center"
+                                            title="Editar">
+
+                                            <svg class="w-4 h-4" fill="none" stroke="currentColor"
+                                                viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z">
+                                                </path>
+                                            </svg>
+
+                                        </a>
+
                                     </td>
 
                                 </tr>

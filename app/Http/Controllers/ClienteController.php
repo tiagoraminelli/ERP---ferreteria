@@ -149,54 +149,64 @@ class ClienteController extends Controller
     /**
      * SHOW
      */
-    public function show(Cliente $cliente)
-    {
-        $ventas = Venta::where('cliente_id', $cliente->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10, ['*'], 'ventas_page');
-
-        $movimientos = CuentaCorriente::where('cliente_id', $cliente->id)
-            ->orderBy('created_at', 'desc')
-            ->paginate(10, ['*'], 'movimientos_page');
 
 
-        // ESTADÍSTICAS
-        $totalCompras = $cliente->ventas()->count();
+public function show(Cliente $cliente)
+{
+    // ================= VENTAS (SIN CUENTA CORRIENTE) =================
+    $ventas = Venta::where('cliente_id', $cliente->id)
+        ->where('metodo_pago', '!=', 'cuenta_corriente') // 🔥 CLAVE
+        ->orderBy('created_at', 'desc')
+        ->paginate(10, ['*'], 'ventas_page');
 
-        $montoTotal = $cliente->ventas()->sum('total');
-
-        $ticketPromedio = $totalCompras > 0
-            ? $montoTotal / $totalCompras
-            : 0;
-
-        $ultimaCompra = $cliente->ventas()
-            ->latest()
-            ->first();
-
-        $saldo = $cliente->cuentaCorriente()
-            ->sum('monto');
-
-        $creditoDisponible = $cliente->limite_credito - $saldo;
-
-        $totalPagado = $cliente->ventas()
-            ->sum('monto_pagado');
+    // ================= MOVIMIENTOS =================
+    $movimientos = CuentaCorriente::where('cliente_id', $cliente->id)
+        ->orderBy('fecha', 'desc')
+        ->paginate(10, ['*'], 'movimientos_page');
 
 
-        return view('clientes.show', compact(
-            'cliente',
-            'ventas',
-            'movimientos',
-            'totalCompras',
-            'montoTotal',
-            'ticketPromedio',
-            'ultimaCompra',
-            'saldo',
-            'creditoDisponible',
-            'totalPagado'
-        ));
-    }
+    // ================= ESTADÍSTICAS =================
+
+    // 🔥 también excluimos cuenta corriente para coherencia
+    $ventasQuery = $cliente->ventas();
+
+    $totalCompras = $ventasQuery->count();
 
 
+    $montoTotal = $ventasQuery->sum('total');
+
+    $ticketPromedio = $totalCompras > 0
+        ? $montoTotal / $totalCompras
+        : 0;
+
+    $ultimaCompra = $ventasQuery
+        ->latest()
+        ->first();
+
+    // ================= CUENTA CORRIENTE =================
+
+    $saldo = $cliente->cuentaCorriente()->sum('monto');
+
+    $creditoDisponible = $cliente->limite_credito - $saldo;
+
+    $totalPagado = $cliente->ventas()
+        ->where('metodo_pago', '!=', 'cuenta_corriente') // coherente
+        ->sum('monto_pagado');
+
+
+    return view('clientes.show', compact(
+        'cliente',
+        'ventas',
+        'movimientos',
+        'totalCompras',
+        'montoTotal',
+        'ticketPromedio',
+        'ultimaCompra',
+        'saldo',
+        'creditoDisponible',
+        'totalPagado'
+    ));
+}
 
     /**
      * FORM EDITAR
