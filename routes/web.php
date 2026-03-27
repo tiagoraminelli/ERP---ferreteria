@@ -59,6 +59,9 @@ Route::middleware(['auth'])->group(function () {
 
     // Rutas para la gestión de presupuestos
     Route::resource('presupuestos', PresupuestoController::class);
+
+    Route::get('/presupuestos/{presupuesto}/pdf', [PresupuestoController::class, 'exportPdf'])
+        ->name('presupuestos.pdf');
 });
 
 

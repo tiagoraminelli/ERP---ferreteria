@@ -9,6 +9,7 @@ use App\Models\Cliente;
 use App\Models\Producto;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class PresupuestoController extends Controller
 {
@@ -368,6 +369,24 @@ class PresupuestoController extends Controller
             ->route('presupuestos.index')
             ->with('success', 'Presupuesto eliminado correctamente');
     }
+
+
+
+public function exportPdf(Presupuesto $presupuesto)
+{
+    $presupuesto->load('cliente', 'detalles.producto', 'usuario');
+
+    $pdf = Pdf::loadView('presupuestos.pdf', compact('presupuesto'))
+        ->setPaper('a4', 'portrait');
+
+    return $pdf->stream(
+        'Presupuesto_' .
+        $presupuesto->id . '_' .
+        optional($presupuesto->cliente)->nombre . '_' .
+        $presupuesto->created_at->format('Ymd_His') .
+        '.pdf'
+    );
+}
 
     /**
      * Cambiar estado del presupuesto
