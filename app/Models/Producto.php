@@ -57,5 +57,9 @@ class Producto extends Model
         return $this->hasMany(VentaDetalle::class);
     }
 
-
+// Relación con detalles de presupuesto
+public function presupuestoDetalles()
+{
+    return $this->hasMany(PresupuestoDetalle::class, 'producto_id');
+}
 }

@@ -55,7 +55,7 @@ class VentaController extends Controller
 
         $query->orderBy($orden, $direccion);
 
-        $ventas = $query->paginate(20)->withQueryString();
+        $ventas = $query->paginate(10)->withQueryString();
 
         /*
         |--------------------------------------------------------------------------

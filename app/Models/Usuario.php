@@ -39,4 +39,10 @@ class Usuario extends Model
         'created_at' => 'datetime',
         'updated_at' => 'datetime'
     ];
+
+    // Relación con presupuestos
+public function presupuestos()
+{
+    return $this->hasMany(Presupuesto::class, 'usuario_id');
+}
 }

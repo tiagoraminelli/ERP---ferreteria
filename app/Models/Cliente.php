@@ -54,4 +54,10 @@ class Cliente extends Model
     {
         return $this->cuentaCorriente()->sum('monto');
     }
+
+    // Relación con presupuestos
+public function presupuestos()
+{
+    return $this->hasMany(Presupuesto::class, 'cliente_id');
+}
 }
