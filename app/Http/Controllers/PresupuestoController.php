@@ -91,6 +91,8 @@ class PresupuestoController extends Controller
 
         $totalPresupuestado = (clone $metricBaseQuery)->sum('total');
 
+        // return a la vist
+
         return view('presupuestos.index', compact(
             'presupuestos',
             'totalPresupuestos',
