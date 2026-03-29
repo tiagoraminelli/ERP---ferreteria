@@ -1,17 +1,40 @@
 <x-app-layout>
 
-    {{-- BOTONES FUERA DEL TICKET --}}
-    <div class="flex justify-end gap-2 mb-4 no-print">
-        <button onclick="window.print()"
-            class="px-5 py-2 bg-black text-white text-xs font-bold uppercase rounded-xl hover:bg-gray-800">
-            Imprimir
-        </button>
+    <x-slot name="header">
+        <div class="flex justify-between items-center no-print">
 
-        <a href="{{ route('ventas.index') }}"
-            class="px-5 py-2 bg-black text-white text-xs font-bold uppercase rounded-xl hover:bg-gray-800">
-            ← Volver
-        </a>
-    </div>
+            {{-- LOGO + EMPRESA --}}
+            <div class="flex items-center gap-3">
+                <img src="{{ asset('img/logo.png') }}" class="w-10 h-10 object-contain" alt="Logo">
+
+                <div class="text-sm leading-tight">
+                    <p class="font-bold text-white dark:text-gray-900">
+                        FERRETERÍA CARRIZO
+                    </p>
+                    <p class="text-gray-200 dark:text-gray-400 text-xs">
+                        HOGAR Y LUZ
+                    </p>
+                    <p class="text-gray-200 dark:text-gray-400 text-[10px]">
+                        Saavedra 1271 - San Cristóbal
+                    </p>
+                </div>
+            </div>
+
+            {{-- ACCIONES --}}
+            <div class="flex items-center gap-2">
+                <button onclick="window.print()"
+                    class="px-4 py-2 bg-gray-500 text-white text-xs font-bold uppercase rounded hover:bg-gray-600">
+                    Imprimir
+                </button>
+
+                <a href="{{ url()->previous() }}"
+                    class="px-4 py-2 bg-gray-700 text-white text-xs font-bold uppercase rounded hover:bg-gray-600">
+                    ← Volver
+                </a>
+            </div>
+
+        </div>
+    </x-slot>
 
     {{-- CONTENEDOR DEL TICKET --}}
     <div class="ticket py-8 bg-gray-100 min-h-screen">
@@ -34,26 +57,28 @@
                 @endphp
 
                 @php
-                    $mensajeContable = null;
-                    $colorMensaje = 'text-gray-700';
-                    $fondoMensaje = 'bg-gray-100';
-                    if ($pagado == 0) {
-                        $mensajeContable = 'VENTA REGISTRADA SIN PAGO';
-                        $colorMensaje = 'text-yellow-700';
-                        $fondoMensaje = 'bg-yellow-100';
-                    } elseif ($pagado == $total) {
-                        $mensajeContable = 'PAGO COMPLETO';
-                        $colorMensaje = 'text-green-700';
-                        $fondoMensaje = 'bg-green-100';
-                    } elseif ($pagado > $total) {
-                        $mensajeContable = 'PAGO MAYOR AL TOTAL - CAMBIO ENTREGADO';
-                        $colorMensaje = 'text-blue-700';
-                        $fondoMensaje = 'bg-blue-100';
-                    } elseif ($pagado < $total) {
-                        $mensajeContable = 'PAGO INCOMPLETO - SALDO PENDIENTE';
-                        $colorMensaje = 'text-red-700';
-                        $fondoMensaje = 'bg-red-100';
-                    }
+                    $estadoPago = match (true) {
+                        $pagado == 0 => [
+                            'mensaje' => 'VENTA REGISTRADA SIN PAGO',
+                            'text' => 'text-yellow-700',
+                            'bg' => 'bg-yellow-100',
+                        ],
+                        $pagado == $total => [
+                            'mensaje' => 'PAGO COMPLETO',
+                            'text' => 'text-green-700',
+                            'bg' => 'bg-green-100',
+                        ],
+                        $pagado > $total => [
+                            'mensaje' => 'PAGO MAYOR AL TOTAL - CAMBIO ENTREGADO',
+                            'text' => 'text-blue-700',
+                            'bg' => 'bg-blue-100',
+                        ],
+                        default => [
+                            'mensaje' => 'PAGO INCOMPLETO - SALDO PENDIENTE',
+                            'text' => 'text-red-700',
+                            'bg' => 'bg-red-100',
+                        ],
+                    };
                 @endphp
 
                 {{-- HEADER TICKET --}}
@@ -139,10 +164,10 @@
                         @endif
                     </div>
 
-                    @if ($mensajeContable)
+                    @if ($estadoPago)
                         <div
-                            class="mt-4 p-2 text-center text-xs font-bold {{ $colorMensaje }} {{ $fondoMensaje }} rounded">
-                            {{ $mensajeContable }}
+                            class="mt-4 p-2 text-center text-xs font-bold rounded {{ $estadoPago['text'] }} {{ $estadoPago['bg'] }}">
+                            {{ $estadoPago['mensaje'] }}
                         </div>
                     @endif
 

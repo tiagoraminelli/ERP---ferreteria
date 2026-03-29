@@ -15,25 +15,27 @@
             max-width: 800px;
             margin: 0 auto;
             background: #fff;
-            border: 1px solid #ccc;
+            border: 1px solid #E6D5B8;
             padding: 20px;
         }
 
         .afip {
             text-align: center;
-            border-bottom: 1px solid #000;
+            border-bottom: 1px solid #E6D5B8;
             padding: 8px 0;
             font-size: 11px;
+            background-color: #F5F2E8;
         }
 
         .afip strong {
             font-size: 16px;
             display: block;
+            color: #B87333;
         }
 
         .header, .section {
             padding: 10px 0;
-            border-bottom: 1px solid #000;
+            border-bottom: 1px solid #E6D5B8;
             font-size: 11px;
         }
 
@@ -55,10 +57,18 @@
             font-size: 11px;
         }
 
+        .header .left .empresa-info strong {
+            color: #B87333;
+        }
+
         .header .right {
             float: right;
             width: 40%;
             text-align: right;
+        }
+
+        .header .right strong {
+            color: #B87333;
         }
 
         .header::after {
@@ -71,6 +81,10 @@
             clear: both;
         }
 
+        .section strong {
+            color: #B87333;
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -79,14 +93,14 @@
         }
 
         table th, table td {
-            border-bottom: 1px solid #000;
+            border-bottom: 1px solid #F0EBDF;
             padding: 5px 3px;
         }
 
         table th {
             text-transform: uppercase;
             font-size: 10px;
-            color: #555;
+            color: #B87333;
         }
 
         .text-right {
@@ -108,14 +122,22 @@
 
         .total-final {
             font-weight: bold;
-            border-top: 1px solid #000;
+            border-top: 1px solid #E6D5B8;
             padding-top: 5px;
             font-size: 13px;
+        }
+
+        .total-final span:first-child {
+            color: #B87333;
         }
 
         .observaciones {
             padding: 10px 0;
             font-size: 11px;
+        }
+
+        .observaciones strong {
+            color: #B87333;
         }
 
         .estado {
@@ -134,11 +156,15 @@
 
         .terminos {
             font-size: 8px;
-            background: #f3f3f3;
+            background: #FDFBF7;
             padding: 10px;
-            border-top: 1px solid #000;
+            border-top: 1px solid #E6D5B8;
             margin-top: 10px;
             line-height: 1.2;
+        }
+
+        .terminos strong {
+            color: #B87333;
         }
 
         @media print {
