@@ -45,10 +45,15 @@ class PresupuestoController extends Controller
 
         // ================= ORDEN =================
 
-        $orden = $request->get('orden', 'fecha');
-        $direccion = $request->get('direccion', 'desc');
+        // ================= ORDEN PERSONALIZADO =================
 
-        $query->orderBy($orden, $direccion);
+        $query->orderByRaw("
+    CASE
+        WHEN estado = 'borrador' THEN 1
+        WHEN estado = 'aprobado' THEN 2
+        ELSE 3
+    END
+")->orderBy('fecha', 'desc');
 
         $presupuestos = $query->paginate(10)->withQueryString();
 

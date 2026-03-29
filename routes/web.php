@@ -58,10 +58,10 @@ Route::middleware(['auth'])->group(function () {
         ->name('cuenta_corriente.index');
 
     // Rutas para la gestión de presupuestos
-    Route::resource('presupuestos', PresupuestoController::class);
-
     Route::get('/presupuestos/{presupuesto}/pdf', [PresupuestoController::class, 'exportPdf'])
         ->name('presupuestos.pdf');
+
+    Route::resource('presupuestos', PresupuestoController::class);
 });
 
 
