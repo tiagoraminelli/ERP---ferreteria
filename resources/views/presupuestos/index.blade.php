@@ -215,37 +215,28 @@
                                         {{ \Carbon\Carbon::parse($presupuesto->fecha)->format('d M Y') }}
                                     </td>
 
-                                    {{-- Acciones --}}
                                     <td class="px-6 py-4">
                                         <div class="flex justify-center gap-3" onclick="event.stopPropagation()">
 
-                                            <a href="{{ route('presupuestos.show', $presupuesto) }}"
+                                            <a href="{{ route('presupuestos.edit', $presupuesto) }}"
+                                                onclick="event.stopPropagation()"
                                                 class="px-3 py-1.5 text-xs font-medium rounded-lg
-                                                bg-gray-100 text-gray-700 hover:bg-gray-200 transition">
-                                                Ver
+            bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
+                                                Editar
                                             </a>
 
-                                            @if ($presupuesto->estado === 'borrador')
-                                                <a href="{{ route('presupuestos.edit', $presupuesto) }}"
-                                                    class="px-3 py-1.5 text-xs font-medium rounded-lg
-                                                    bg-blue-50 text-blue-700 hover:bg-blue-100 transition">
-                                                    Editar
-                                                </a>
-                                            @endif
-
-                                            @if ($presupuesto->estado === 'aprobado')
-                                                <form
-                                                    action="{{ route('presupuestos.convertir-venta', $presupuesto) }}"
-                                                    method="POST" class="inline">
-                                                    @csrf
-                                                    <button type="submit"
-                                                        class="px-3 py-1.5 text-xs font-medium rounded-lg
-                                                        bg-green-50 text-green-700 hover:bg-green-100 transition">
-                                                        Convertir
-                                                    </button>
-                                                </form>
-                                            @endif
-
+                                            {{-- @if ($presupuesto->estado === 'aprobado')
+            <form
+                action="{{ route('presupuestos.convertir-venta', $presupuesto) }}"
+                method="POST" class="inline">
+                @csrf
+                <button type="submit"
+                    class="px-3 py-1.5 text-xs font-medium rounded-lg
+                    bg-green-50 text-green-700 hover:bg-green-100 transition">
+                    Convertir
+                </button>
+            </form>
+        @endif --}}
                                         </div>
                                     </td>
 

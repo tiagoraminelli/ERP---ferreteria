@@ -128,7 +128,7 @@ class PresupuestoController extends Controller
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'cliente_id' => 'nullable|exists:clientes,id',
+            'cliente_id' => 'nullable',
             'observaciones' => 'nullable|string|max:500',
             'estado' => 'required|in:borrador,enviado,aprobado,rechazado',
             'fecha' => 'nullable|date',
@@ -149,10 +149,15 @@ class PresupuestoController extends Controller
 
         DB::beginTransaction();
 
+
         try {
+
+            $clienteIdFinal = $this->resolverCliente($request->input('cliente_id'));
+
+
             // Crear el presupuesto
             $presupuesto = Presupuesto::create([
-                'cliente_id' => $validated['cliente_id'] ?? null,
+                'cliente_id' => $clienteIdFinal ?? null,
                 'usuario_id' => Auth::id() ?? 1,
                 'fecha' => $validated['fecha'] ?? now()->toDateString(),
                 'estado' => $validated['estado'],
@@ -208,7 +213,6 @@ class PresupuestoController extends Controller
             return redirect()
                 ->route('presupuestos.show', $presupuesto)
                 ->with('success', '¡Presupuesto creado correctamente! N°: ' . $presupuesto->id);
-
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -343,7 +347,6 @@ class PresupuestoController extends Controller
             return redirect()
                 ->route('presupuestos.show', $presupuesto)
                 ->with('success', '¡Presupuesto actualizado correctamente! N°: ' . $presupuesto->id);
-
         } catch (\Exception $e) {
 
             DB::rollBack();
@@ -372,21 +375,21 @@ class PresupuestoController extends Controller
 
 
 
-public function exportPdf(Presupuesto $presupuesto)
-{
-    $presupuesto->load('cliente', 'detalles.producto', 'usuario');
+    public function exportPdf(Presupuesto $presupuesto)
+    {
+        $presupuesto->load('cliente', 'detalles.producto', 'usuario');
 
-    $pdf = Pdf::loadView('presupuestos.pdf', compact('presupuesto'))
-        ->setPaper('a4', 'portrait');
+        $pdf = Pdf::loadView('presupuestos.pdf', compact('presupuesto'))
+            ->setPaper('a4', 'portrait');
 
-    return $pdf->stream(
-        'Presupuesto_' .
-        $presupuesto->id . '_' .
-        optional($presupuesto->cliente)->nombre . '_' .
-        $presupuesto->created_at->format('Ymd_His') .
-        '.pdf'
-    );
-}
+        return $pdf->stream(
+            'Presupuesto_' .
+                $presupuesto->id . '_' .
+                optional($presupuesto->cliente)->nombre . '_' .
+                $presupuesto->created_at->format('Ymd_His') .
+                '.pdf'
+        );
+    }
 
     /**
      * Cambiar estado del presupuesto
@@ -406,66 +409,43 @@ public function exportPdf(Presupuesto $presupuesto)
             ->with('success', 'Estado actualizado a: ' . ucfirst($validated['estado']));
     }
 
-    /**
-     * Convertir presupuesto a venta
-     */
-    // public function convertirVenta(Presupuesto $presupuesto)
-    // {
-    //     if ($presupuesto->estado !== 'aprobado') {
-    //         return redirect()
-    //             ->route('presupuestos.show', $presupuesto)
-    //             ->with('error', 'Solo se pueden convertir presupuestos aprobados');
-    //     }
 
-    //     DB::beginTransaction();
 
-    //     try {
-    //         // Crear la venta
-    //         $venta = Venta::create([
-    //             'cliente_id' => $presupuesto->cliente_id,
-    //             'usuario_id' => Auth::id() ?? 1,
-    //             'fecha' => now()->toDateString(),
-    //             'estado' => 'pendiente',
-    //             'metodo_pago' => 'efectivo',
-    //             'notas' => 'Presupuesto convertido #' . $presupuesto->id,
-    //             'total' => $presupuesto->total,
-    //             'monto_pagado' => 0,
-    //             'saldo_pendiente' => $presupuesto->total
-    //         ]);
+    private function resolverCliente($input)
+    {
+        $input = trim($input);
 
-    //         // Copiar detalles
-    //         foreach ($presupuesto->detalles as $detalle) {
-    //             VentaDetalle::create([
-    //                 'venta_id' => $venta->id,
-    //                 'producto_id' => $detalle->producto_id,
-    //                 'cantidad' => $detalle->cantidad,
-    //                 'precio' => $detalle->precio,
-    //                 'precio_costo' => $detalle->producto ? $detalle->producto->precio_costo : 0,
-    //                 'descuento_porcentaje' => $detalle->descuento_porcentaje,
-    //                 'descuento_monto' => $detalle->descuento_monto,
-    //                 'subtotal' => $detalle->subtotal,
-    //                 'subtotal_sin_descuento' => $detalle->cantidad * $detalle->precio,
-    //             ]);
-    //         }
+        if (!$input) {
+            return null;
+        }
 
-    //         // Actualizar estado del presupuesto
-    //         $presupuesto->update([
-    //             'estado' => 'convertido'
-    //         ]);
+        // 🔹 Caso ID
+        if (is_numeric($input) && $cliente = Cliente::find($input)) {
+            return $cliente->id;
+        }
 
-    //         DB::commit();
+        // 🔹 Caso nombre
+        $normalizado = $this->normalizarNombre($input);
 
-    //         return redirect()
-    //             ->route('ventas.show', $venta)
-    //             ->with('success', 'Presupuesto convertido a venta exitosamente. Venta N°: ' . $venta->id);
+        $clienteExistente = Cliente::all()->first(function ($c) use ($normalizado) {
+            return $this->normalizarNombre($c->nombre) === $normalizado;
+        });
 
-    //     } catch (\Exception $e) {
+        if ($clienteExistente) {
+            return $clienteExistente->id;
+        }
 
-    //         DB::rollBack();
+        // 🔹 Crear nuevo sin duplicar
+        return Cliente::create([
+            'nombre' => ucwords($normalizado),
+            'activo' => '1', // es tipo dato tinyint(1) en la base, pero en el modelo lo manejamos como booleano, así que se guardará como 1
+        ])->id;
+    }
 
-    //         return redirect()
-    //             ->route('presupuestos.show', $presupuesto)
-    //             ->with('error', 'Error al convertir presupuesto: ' . $e->getMessage());
-    //     }
-    // }
+    private function normalizarNombre($nombre)
+    {
+        $nombre = trim($nombre);
+        $nombre = preg_replace('/\s+/', ' ', $nombre);
+        return mb_strtolower($nombre, 'UTF-8');
+    }
 }

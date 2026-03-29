@@ -55,8 +55,7 @@
                             <option></option>
                             @foreach ($productos as $producto)
                                 <option value="{{ $producto->id }}" data-nombre="{{ $producto->nombre }}"
-                                    data-precio="{{ $producto->precio }}"
-                                    data-codigo="{{ $producto->codigo_barra }}">
+                                    data-precio="{{ $producto->precio }}" data-codigo="{{ $producto->codigo_barra }}">
                                     {{ $producto->nombre }} - ${{ number_format($producto->precio, 2) }}
                                 </option>
                             @endforeach
@@ -110,8 +109,9 @@
                                         Cliente
                                     </label>
 
+                                    {{-- Cambia name="cliente_input" por name="cliente_id" --}}
                                     <select name="cliente_id" id="select2Clientes" style="width:100%">
-                                        <option value="">Seleccionar cliente (opcional)</option>
+                                        <option value="">Seleccionar o crear cliente...</option>
                                         @foreach ($clientes as $cliente)
                                             <option value="{{ $cliente->id }}"
                                                 {{ old('cliente_id') == $cliente->id ? 'selected' : '' }}>
@@ -119,6 +119,8 @@
                                             </option>
                                         @endforeach
                                     </select>
+
+                                    {{-- Campo oculto para enviar el ID del cliente --}}
                                 </div>
 
                                 {{-- Estado --}}
@@ -377,11 +379,21 @@
                 dropdownParent: $('#select2Productos').parent()
             });
 
-            // Select2 para Clientes - BÚSQUEDA LOCAL
             $('#select2Clientes').select2({
-                placeholder: 'Buscar cliente...',
+                placeholder: 'Buscar o crear cliente...',
                 allowClear: true,
-                dropdownParent: $('#select2Clientes').parent()
+                tags: true, // <--- Permite escribir texto nuevo
+                createTag: function(params) {
+                    var term = $.trim(params.term);
+                    if (term === '') {
+                        return null;
+                    }
+                    return {
+                        id: term,
+                        text: term,
+                        newTag: true // Marcamos que es un tag nuevo
+                    };
+                }
             });
 
             // Evento al seleccionar producto
